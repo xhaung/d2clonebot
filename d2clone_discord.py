@@ -179,10 +179,13 @@ class D2Clone(discord.Client):
 
 if __name__ == "__main__":
     token = os.environ.get("DISCORD_TOKEN")
+    print("Hello world")
 
     if token:
+        print("entering process")
         client = D2Clone(intents=discord.Intents.default())
         client.run(token)
+        print("process ended")
     else:
         print("Please set the DISCORD_TOKEN environment variable!")
         exit(1)
