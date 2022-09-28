@@ -117,6 +117,7 @@ class D2Clone(discord.Client):
         self.report_status_update.start()
 
     async def on_message(self, message):
+        print(message.content)
         if message.author == self.user:
             return
 
