@@ -1,1 +1,1 @@
-web: python d2clone_discord.py
+worker: python d2clone_discord.py
