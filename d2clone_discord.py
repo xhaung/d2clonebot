@@ -118,6 +118,7 @@ class D2Clone(discord.Client):
 
     async def on_message(self, message):
         print(message.content)
+        print(repr(message))
         if message.author == self.user:
             return
 
