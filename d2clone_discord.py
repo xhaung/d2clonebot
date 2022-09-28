@@ -185,7 +185,7 @@ if __name__ == "__main__":
 
     if token:
         print("entering process")
-        client = D2Clone(intents=discord.Intents.default())
+        client = D2Clone(intents=discord.Intents.all())
         client.run(token)
         print("process ended")
     else:
