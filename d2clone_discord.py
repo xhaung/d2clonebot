@@ -120,8 +120,10 @@ class D2Clone(discord.Client):
         if message.author == self.user:
             return
 
+        if message.content.startswith('$hello'):
+            await message.channel.send('Hello!')
+        
         if message.content.startswith("!uberdiablo"):
-            await message.channel.send("got uberdiablo command")
             self.update_dclone_status()
             args = message.content.split(" ")[1:]
             region, ladder, hardcore = parse_args(args)
