@@ -176,18 +176,23 @@ class D2Clone(discord.Client):
         text += "> Data courtesy of diablo2.io"
         return text
 
-client = D2Clone(intents=discord.Intents.all())
-    
 @client.event
 async def on_ready():
-    await client.change_presence(status=discord.Status.Online, activity=discord.game('!uberdiablo <eu/am/asi/non/ladder/hard/soft>'))
+    await client.change_presence(activity=discord.game('!uberdiablo <eu/am/asi/non/ladder/hard/soft>'))
     print('We have logged in as {0.user}'.format(client))
 
 if __name__ == "__main__":
     token = os.environ.get("DISCORD_TOKEN")
 
     if token:
-        print("entering process")        
+        print("entering process")
+        client = D2Clone(intents=discord.Intents.all())        
+        client.user.setPresence({
+            activity: {
+                name: 'STATUS HERE'
+            },
+            status: 'online'
+            })
         client.run(token)
         print("process ended")
     else:
