@@ -180,7 +180,7 @@ client = D2Clone(intents=discord.Intents.all())
     
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.game('!uberdiablo <eu/am/asi/non/ladder/hard/soft>'))
+    await client.change_presence(activity=discord.Game('!uberdiablo <eu/am/asi/non/ladder/hard/soft>'))
     print('We have logged in as {0.user}'.format(client))
 
 if __name__ == "__main__":
