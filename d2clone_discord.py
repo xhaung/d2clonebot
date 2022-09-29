@@ -189,12 +189,6 @@ if __name__ == "__main__":
     if token:
         print("entering process")
        
-        client.user.setPresence({
-            activity: {
-                name: 'STATUS HERE'
-            },
-            status: 'online'
-            })
         client.run(token)
         print("process ended")
     else:
