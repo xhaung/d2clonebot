@@ -117,14 +117,11 @@ class D2Clone(discord.Client):
         self.report_status_update.start()
 
     async def on_message(self, message):
-        print(message.content)
-        print(repr(message))
+        ## print(message.content)
+        ## print(repr(message))
         if message.author == self.user:
             return
 
-        if message.content.startswith('$hello'):
-            await message.channel.send('Hello!')
-        
         if message.content.startswith("!uberdiablo"):
             self.update_dclone_status()
             args = message.content.split(" ")[1:]
@@ -181,7 +178,6 @@ class D2Clone(discord.Client):
 
 if __name__ == "__main__":
     token = os.environ.get("DISCORD_TOKEN")
-    print("Hello world")
 
     if token:
         print("entering process")
