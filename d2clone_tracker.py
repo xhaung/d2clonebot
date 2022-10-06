@@ -78,7 +78,7 @@ async def myloop():
     await channel.send('Example message')
 
 @myloop.before_loop
-async def before_myloop(self):
+async def before_myloop():
     print('waiting...')
     await bot.wait_until_ready()
         
