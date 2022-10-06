@@ -48,23 +48,12 @@ async def scrabblepoints(ctx, arg):
         points += score[c]
     await ctx.send(points)
 
-"""
+
 @tasks.loop(seconds=20)
 async def mytask():
     print("looping 1")
     #channel = bot.get_channel(894561623816155178)
     #await channel.send('Example message')
-""" 
 
-class MyCog(commands.Cog):
-    def __init__(self):
-        self.foo.start()
-
-    def cog_unload(self):
-        self.printer.cancel()
-
-    @tasks.loop(seconds=5.0)
-    async def foo(self):
-        print('bar')
 
 bot.run(TOKEN)
