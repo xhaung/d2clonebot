@@ -55,4 +55,5 @@ async def mytask():
     channel = bot.get_channel(894561623816155178)
     await channel.send('Example message')
 
+mytask.start()
 bot.run(TOKEN)
