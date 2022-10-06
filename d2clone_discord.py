@@ -184,6 +184,8 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(client))
 """
 
+bot = commands.Bot(command_prefix="!")
+
 @tasks.loop(minutes=1)
 async def mytask():
     print("looping 1")
