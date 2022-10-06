@@ -48,12 +48,29 @@ async def scrabblepoints(ctx, arg):
         points += score[c]
     await ctx.send(points)
 
+    
+    
+class MyCog(commands.Cog):
+    def __init__(self, bot):
+        self.index = 0
+        self.bot = bot
+        self.printer.start()
+
+    def cog_unload(self):
+        self.printer.cancel()
+
+    @tasks.loop(seconds=20.0)
+    async def printer(self):
+        print(self.index)
+        self.index += 1
+        #channel = bot.get_channel(894561623816155178)
+        #await channel.send('Example message')
+
+    @printer.before_loop
+    async def before_printer(self):
+        print('waiting...')
+        await self.bot.wait_until_ready()
+        
+
 bot.run(TOKEN)
 
-@tasks.loop(seconds=20)
-async def mytask():
-    print("looping 1")
-    channel = bot.get_channel(894561623816155178)
-    await channel.send('Example message')
-    
-mytask.start()
