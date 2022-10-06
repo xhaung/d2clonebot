@@ -63,8 +63,8 @@ class MyCog(commands.Cog):
     async def printer(self):
         print(self.index)
         self.index += 1
-        #channel = bot.get_channel(894561623816155178)
-        #await channel.send('Example message')
+        channel = bot.get_channel(894561623816155178)
+        await channel.send('Example message')
 
     @printer.before_loop
     async def before_printer(self):
