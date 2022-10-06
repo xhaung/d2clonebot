@@ -72,9 +72,8 @@ class MyCog(commands.Cog):
         await self.bot.wait_until_ready()
         
 @tasks.loop(seconds=20.0)
-async def myloop(self):
-    print(self.index)
-    self.index += 1
+async def myloop():
+    print("testing 1")
     channel = bot.get_channel(894561623816155178)
     await channel.send('Example message')
 
