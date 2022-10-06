@@ -72,6 +72,6 @@ class MyCog(commands.Cog):
         await self.bot.wait_until_ready()
         
 cog = MyCog
-
+cog.start()
 bot.run(TOKEN)
 
