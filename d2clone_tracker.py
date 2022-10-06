@@ -57,3 +57,4 @@ async def mytask():
 
 
 bot.run(TOKEN)
+mytask.start()
