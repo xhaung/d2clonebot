@@ -119,7 +119,7 @@ class D2Clone(discord.Client):
 
     async def on_message(self, message):
         ## print(message.content)
-        ## print(repr(message))
+        print(repr(message))
         if message.author == self.user:
             return
 
@@ -184,6 +184,12 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(client))
 """
 
+@tasks.loop(minutes=1)
+async def mytask():
+    channel = bot.get_channel(889482696739401748)
+    await channel.send('Example message')
+    # 894561623816155178
+
 if __name__ == "__main__":
     token = os.environ.get("DISCORD_TOKEN")
 
@@ -196,8 +202,4 @@ if __name__ == "__main__":
         print("Please set the DISCORD_TOKEN environment variable!")
         exit(1)
 
-@tasks.loop(minutes=1)
-async def mytask():
-    channel = bot.get_channel(889482696739401748)
-    await channel.send('Example message')
-    # 894561623816155178
+
