@@ -56,5 +56,5 @@ async def mytask():
     await channel.send('Example message')
 
 
-bot.run(TOKEN)
 mytask.start()
+bot.run(TOKEN)
