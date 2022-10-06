@@ -186,6 +186,7 @@ async def on_ready():
 
 @tasks.loop(minutes=1)
 async def mytask():
+    print("looping 1")
     channel = bot.get_channel(894561623816155178)
     await channel.send('Example message')
 
