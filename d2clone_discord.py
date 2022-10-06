@@ -186,9 +186,8 @@ async def on_ready():
 
 @tasks.loop(minutes=1)
 async def mytask():
-    channel = bot.get_channel(889482696739401748)
+    channel = bot.get_channel(894561623816155178)
     await channel.send('Example message')
-    # 894561623816155178
 
 if __name__ == "__main__":
     token = os.environ.get("DISCORD_TOKEN")
