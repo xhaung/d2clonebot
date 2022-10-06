@@ -71,6 +71,7 @@ class MyCog(commands.Cog):
         print('waiting...')
         await self.bot.wait_until_ready()
         
-await bot.add_cog(Greetings(MyCog))
+cog = MyCog
+
 bot.run(TOKEN)
 
