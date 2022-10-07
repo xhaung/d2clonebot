@@ -63,11 +63,11 @@ def get_diablo_tracker(
     response = requests.get(API_BASE_URL, params=filtered_params, headers=headers)
     return response.json() if response.status_code == 200 else None
 
-def check_new_entry(tracker, min_lv, record_list):
+def check_new_entry(tracker, lv, record_list):
     updated_tracker = dict()
     for entry in tracker:
         key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
-        if int(entry["progress"]) >= min_lv:
+        if int(entry["progress"]) == min_lv:
             if key not in record_list:
                 updated_tracker[key] = entry
                 record_list[key] = entry
@@ -125,8 +125,8 @@ async def myloop():
     # await channel.send('Example message')
     
     checker = get_diablo_tracker()
-    new_entry_5 = check_new_entry(checker, 5, record_list_5)
-    new_entry_6 = check_new_entry(checker, 6, record_list_6)
+    new_entry_5 = check_new_entry(checker, 2, record_list_5)
+    new_entry_6 = check_new_entry(checker, 3, record_list_6)
 
     for key in new_entry_5:
         progress = int(new_entry_5[key]["progress"])
