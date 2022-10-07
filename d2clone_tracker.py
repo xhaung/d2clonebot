@@ -87,13 +87,13 @@ def get_diablo_tracker(
     response = requests.get(API_BASE_URL, params=filtered_params, headers=headers)
     return response.json() if response.status_code == 200 else None
 
-def init_record_list():
+def init_record_list(real_value = False):
     record_list = dict()
     checker = get_diablo_tracker()
 
     for entry in checker:
         key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
-        record_list[key] = 0
+        record_list[key] = int(entry["progress"]) if real_value else 0
 
     return record_list
 
@@ -115,6 +115,13 @@ def check_new_entry(tracker, levels, record_list=None):
 def build_msg_str(key, progress):
     return f"**[{progress}/6]** {msg_prefix.TEXT[progress]} {'|'} {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
 
+def channel_send_msg(channel_id, msg):
+    try:
+        print(channel_id, msg)
+        channel = bot.get_channel(channel_id)
+        await channel.send(msg)
+    except Exception as e:
+        print("[Error]:", e)
 
 
 @bot.event
@@ -155,7 +162,7 @@ async def scrabblepoints(ctx, arg):
     await ctx.send(points)
 
     
-record_list = init_record_list()
+record_list = init_record_list(True)
         
 @tasks.loop(seconds=60.0)
 async def notify_loop():
@@ -166,10 +173,8 @@ async def notify_loop():
     for key in new_entry:
         progress = new_entry[key]
         message = build_msg_str(key, progress)
-        print(message)
         channel_id = CHANNEL_ID.SEL[key[1]][key[2]]
-        channel = bot.get_channel(channel_id)
-        await channel.send(message)
+        channel_send_msg(channel_id, message)
     
 
 @notify_loop.before_loop
@@ -194,8 +199,7 @@ async def period_loop():
         
     print(message)
     channel_id = CHANNEL_ID.PERIOD
-    channel = bot.get_channel(channel_id)
-    await channel.send(message)
+    channel_send_msg(channel_id, message)
     
 
 @period_loop.before_loop
