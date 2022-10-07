@@ -115,6 +115,7 @@ def check_new_entry(tracker, levels, record_list=None):
 def build_msg_str(key, progress):
     return f"**[{progress}/6]** {msg_prefix.TEXT[progress]} {'|'} {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
 
+"""
 def channel_send_msg(channel_id, msg):
     try:
         print(channel_id, msg)
@@ -122,7 +123,7 @@ def channel_send_msg(channel_id, msg):
         await channel.send(msg)
     except Exception as e:
         print("[Error]:", e)
-
+"""
 
 @bot.event
 async def on_ready():
