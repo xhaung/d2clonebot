@@ -3,6 +3,8 @@ from discord.ext import commands
 from discord.ext import tasks
 from dotenv import load_dotenv
 import requests
+import collections 
+from collections import OrderedDict
 
 load_dotenv()
 
@@ -87,15 +89,19 @@ def get_diablo_tracker(
     response = requests.get(API_BASE_URL, params=filtered_params, headers=headers)
     return response.json() if response.status_code == 200 else None
 
-def init_record_list(real_value = False):
-    record_list = dict()
+def init_record_list(real_value = False, sort_list = False):
+    record_list = OrderedDict()
     checker = get_diablo_tracker()
 
     for entry in checker:
         key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
         record_list[key] = int(entry["progress"]) if real_value else 0
 
+    if sort_list:
+        record_list = collections.OrderedDict(sorted(record_list.items()))
+
     return record_list
+
 
 def check_new_entry(tracker, levels, record_list=None):
     new_entry = dict()
@@ -112,8 +118,59 @@ def check_new_entry(tracker, levels, record_list=None):
                     
     return new_entry
 
-def build_msg_str(key, progress):
-    return f"**[{progress}/6]** {msg_prefix.TEXT[progress]} {'|'} {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
+def build_msg_str(key, progress, with_msg_prefix = True):
+    prefix = msg_prefix.TEXT[progress] if with_msg_prefix else ''
+    return f"**[{progress}/6]** {prefix} {'|'} {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
+
+
+
+## Message handling
+def status_text(list, region=None, ladder=None, hardcore=None):
+    text = ""
+    for key, value in list.items():
+        if filter_realm(key, region, ladder, hardcore):
+            text += f"**[{value}/6]**   {Regions.TEXT[key[0]].ljust(8)} {Ladder.TEXT[key[1]].ljust(11)} {Hardcore.TEXT[key[2]]}\n"
+    text += "> Data courtesy of diablo2.io"
+    return text
+
+
+
+def filter_realm(key, region, ladder, hardcore):
+    return (
+        (not region or key[0] == region)
+        and (not ladder or key[1] == ladder)
+        and (not hardcore or key[2] == hardcore)
+    )
+
+
+def parse_args(args):
+    if not args:
+        return None, None, None
+
+    region = None
+    ladder = None
+    hardcore = None
+
+    if any("am" in arg for arg in args):
+        region = Regions.AMERICAS
+    if any("eu" in arg for arg in args):
+        region = Regions.EUROPE
+    if any("asi" in arg for arg in args):
+        region = Regions.ASIA
+
+    if any("non" in arg for arg in args):
+        ladder = Ladder.NON_LADDER
+    if any("ladder" in arg for arg in args) and not any("non" in arg for arg in args):
+        ladder = Ladder.LADDER
+
+    if any("hard" in arg for arg in args):
+        hardcore = Hardcore.HARDCORE
+    if any("soft" in arg for arg in args):
+        hardcore = Hardcore.SOFTCORE
+
+    return region, ladder, hardcore
+
+
 
 """
 def channel_send_msg(channel_id, msg):
@@ -138,10 +195,23 @@ async def on_message(message):
         await message.channel.send(f'Hi {message.author}')
     if message.content == 'bye':
         await message.channel.send(f'Goodbye {message.author}')
+        
+    if message.content.startswith("!uberdiablo") and "help" in message.content:
+        print("Usage: !uberdiablo [eu|am|asi] [non|ladder] [soft|hard]")
+    elif message.content.startswith("!uberdiablo"):
+        current_list = init_record_list(True, True)
+
+        args = message.content.split(" ")[1:]
+        region, ladder, hardcore = parse_args(args)
+        text_message = status_text(
+            list = current_list, 
+            region=region, ladder=ladder, hardcore=hardcore
+        )
+        await message.channel.send(text_message)
 
     await bot.process_commands(message)
 
-
+"""
 # Start each command with the @bot.command decorater
 @bot.command()
 async def square(ctx, arg): # The name of the function is the name of the command
@@ -161,9 +231,10 @@ async def scrabblepoints(ctx, arg):
     for c in arg:
         points += score[c]
     await ctx.send(points)
-
+"""
     
 record_list = init_record_list(True)
+first_loop = True
         
 @tasks.loop(seconds=60.0)
 async def notify_loop():
@@ -194,27 +265,31 @@ async def before_notify_loop():
 
 @tasks.loop(hours=4.0)
 async def period_loop():
-    #print("testing 1")
-    checker = get_diablo_tracker()
-    list_entry = check_new_entry(checker, [3, 4, 5, 6])
+    if not first_loop:
+        checker = get_diablo_tracker()
+        list_entry = check_new_entry(checker, [3, 4, 5, 6])
+
+        message = "---- Current terror progress (>3) ----\n"
+        for key in list_entry:
+            progress = list_entry[key]
+            message += build_msg_str(key, progress)
+
+        if len(list_entry) == 0:
+            message += "No region's terror progresses beyond 3 at the moment"
+
+        #print(message)
+        channel_id = CHANNEL_ID.PERIOD
+        #channel_send_msg(channel_id, message)
+        try:
+            print(channel_id, message)
+            channel = bot.get_channel(channel_id)
+            await channel.send(message)
+        except Exception as e:
+            print("[Error]:", e)
+    else:
+        print("skipped the first hourly loop")
     
-    message = "---- Current terror progress ----\n"
-    for key in list_entry:
-        progress = list_entry[key]
-        message += build_msg_str(key, progress)
-        
-    if len(list_entry) == 0:
-        message += "No region's terror progresses beyond 3 at the moment"
-        
-    #print(message)
-    channel_id = CHANNEL_ID.PERIOD
-    #channel_send_msg(channel_id, message)
-    try:
-        print(channel_id, message)
-        channel = bot.get_channel(channel_id)
-        await channel.send(message)
-    except Exception as e:
-        print("[Error]:", e)
+    first_loop = False
     
 
 @period_loop.before_loop
