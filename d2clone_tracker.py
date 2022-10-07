@@ -67,7 +67,7 @@ def check_new_entry(tracker, lv, record_list):
     updated_tracker = dict()
     for entry in tracker:
         key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
-        if int(entry["progress"]) == min_lv:
+        if int(entry["progress"]) == lv:
             if key not in record_list:
                 updated_tracker[key] = entry
                 record_list[key] = entry
