@@ -197,7 +197,7 @@ async def on_message(message):
         await message.channel.send(f'Goodbye {message.author}')
         
     if message.content.startswith("!uberdiablo") and "help" in message.content:
-        print("Usage: !uberdiablo [eu|am|asi] [non|ladder] [soft|hard]")
+        await message.channel.send("Usage: !uberdiablo [eu|am|asi] [non|ladder] [soft|hard]")
     elif message.content.startswith("!uberdiablo"):
         current_list = init_record_list(True, True)
 
