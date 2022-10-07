@@ -65,6 +65,8 @@ class CHANNEL_ID:
             Hardcore.SOFTCORE: 1027890065801756732
         }
     }
+    PERIOD = 1027894748675059762
+    TEST = 894561623816155178
 
 
 bot = commands.Bot(command_prefix="!")
@@ -155,8 +157,8 @@ async def scrabblepoints(ctx, arg):
 record_list = init_record_list()
         
 @tasks.loop(seconds=60.0)
-async def myloop():
-    print("testing 1")
+async def notify_loop():
+    #print("testing 1")
     checker = get_diablo_tracker()
     new_entry = check_new_entry(checker, [4, 5, 6], record_list)
 
@@ -169,12 +171,39 @@ async def myloop():
         await channel.send(message)
     
 
-@myloop.before_loop
-async def before_myloop():
+@notify_loop.before_loop
+async def before_notify_loop():
     print('waiting...')
     await bot.wait_until_ready()
-        
 
-myloop.start()
+
+@tasks.loop(hours=4.0)
+async def period_loop():
+    #print("testing 1")
+    checker = get_diablo_tracker()
+    list_entry = check_new_entry(checker, [3, 4, 5, 6])
+    
+    message = "---- Current terror progress ----\n"
+    for key in list_entry:
+        progress = list_entry[key]
+        message += build_msg_str(key, progress)
+        
+    if len(list_entry) == 0:
+        message += "No region's terror progresses beyond 3 at the moment"
+        
+    channel_id = CHANNEL_ID.TEST
+    # print(channel_id, message)
+    await channel.send(message)
+    
+
+@period_loop.before_loop
+async def before_period_loop():
+    print('waiting...')
+    await bot.wait_until_ready()
+    
+
+notify_loop.start()
+period_loop.start()
 bot.run(TOKEN)
+
 
