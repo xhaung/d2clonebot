@@ -158,7 +158,7 @@ record_list = init_record_list()
 async def myloop():
     print("testing 1")
     checker = get_diablo_tracker()
-    new_entry = check_new_entry(checker, [2, 3, 4, 5, 6], record_list)
+    new_entry = check_new_entry(checker, [4, 5, 6], record_list)
 
     for key in new_entry:
         progress = new_entry[key]
