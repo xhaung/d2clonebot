@@ -11,6 +11,26 @@ TOKEN = os.environ.get("DISCORD_TOKEN")
 
 bot = commands.Bot(command_prefix="!")
 
+
+def get_diablo_tracker(
+    region=None, ladder=None, hardcore=None, sort_key=None, sort_direction=None
+):
+    params = {
+        "region": region,
+        "ladder": ladder,
+        "hc": hardcore,
+        "sk": sort_key,
+        "sd": sort_direction,
+    }
+    filtered_params = {k: v for k, v in params.items() if v is not None}
+    headers = {"User-Agent": "d2clone-discord"}
+    response = requests.get(API_BASE_URL, params=filtered_params, headers=headers)
+    return response.json() if response.status_code == 200 else None
+
+def filter_level(min_lv=0)
+    progress_json = get_diablo_tracker()
+
+
 @bot.event
 async def on_ready():
     print(f'{bot.user} succesfully logged in!')
@@ -82,6 +102,6 @@ async def before_myloop():
     print('waiting...')
     await bot.wait_until_ready()
         
-myloop.start()
+# myloop.start()
 bot.run(TOKEN)
 
