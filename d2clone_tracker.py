@@ -143,6 +143,6 @@ async def before_myloop():
     print('waiting...')
     await bot.wait_until_ready()
         
-# myloop.start()
+myloop.start()
 bot.run(TOKEN)
 
