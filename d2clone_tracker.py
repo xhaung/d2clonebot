@@ -192,8 +192,8 @@ async def period_loop():
     if len(list_entry) == 0:
         message += "No region's terror progresses beyond 3 at the moment"
         
-    channel_id = CHANNEL_ID.TEST
     print(message)
+    channel_id = CHANNEL_ID.PERIOD
     channel = bot.get_channel(channel_id)
     await channel.send(message)
     
