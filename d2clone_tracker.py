@@ -2,6 +2,7 @@ import os
 from discord.ext import commands
 from discord.ext import tasks
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
