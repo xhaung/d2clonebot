@@ -9,6 +9,42 @@ API_BASE_URL = os.environ.get("API_BASE_URL", "https://diablo2.io/dclone_api.php
 DISCORD_CHANNEL_ID = int(os.environ.get("DISCORD_CHANNEL_ID", 0))
 TOKEN = os.environ.get("DISCORD_TOKEN")
 
+
+class Regions:
+    AMERICAS = 1
+    EUROPE = 2
+    ASIA = 3
+    TEXT = {1: "Americas", 2: "Europe", 3: "Asia"}
+
+
+class Ladder:
+    LADDER = 1
+    NON_LADDER = 2
+    TEXT = {1: "Ladder", 2: "Non-ladder"}
+
+
+class Hardcore:
+    HARDCORE = 1
+    SOFTCORE = 2
+    TEXT = {1: "Hardcore", 2: "Softcore"}
+
+
+class SortDirection:
+    ASCENDING = "a"
+    DESCENDING = "d"
+
+
+class SortKey:
+    PROGRESS = "p"
+    REGION = "r"
+    LADDER = "l"
+    HARDCORE = "h"
+    TIMESTAMP = "t"
+
+record_list_5 = dict()
+record_list_6 = dict()
+
+
 bot = commands.Bot(command_prefix="!")
 
 
@@ -27,8 +63,21 @@ def get_diablo_tracker(
     response = requests.get(API_BASE_URL, params=filtered_params, headers=headers)
     return response.json() if response.status_code == 200 else None
 
-def filter_level(min_lv=0)
-    progress_json = get_diablo_tracker()
+def check_new_entry(tracker, min_lv, record_list):
+    updated_tracker = dict()
+    for entry in tracker:
+        key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
+        if int(entry["progress"]) >= min_lv:
+            if key not in record_list:
+                updated_tracker[key] = entry
+                record_list[key] = entry
+        else:
+            if key in record_list:
+                record_list.pop(key)
+    return updated_tracker
+
+def build_msg_str(key, progress):
+    return f"**[{progress}/6]** {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
 
 
 @bot.event
@@ -68,34 +117,26 @@ async def scrabblepoints(ctx, arg):
         points += score[c]
     await ctx.send(points)
 
-    
-    
-class MyCog(commands.Cog):
-    def __init__(self, bot):
-        self.index = 0
-        self.bot = bot
-        self.printer.start()
-
-    def cog_unload(self):
-        self.printer.cancel()
-
-    @tasks.loop(seconds=20.0)
-    async def printer(self):
-        print(self.index)
-        self.index += 1
-        channel = bot.get_channel(894561623816155178)
-        await channel.send('Example message')
-
-    @printer.before_loop
-    async def before_printer(self):
-        print('waiting...')
-        await self.bot.wait_until_ready()
         
-@tasks.loop(seconds=20.0)
+@tasks.loop(minutes=1.0)
 async def myloop():
     print("testing 1")
     channel = bot.get_channel(894561623816155178)
-    await channel.send('Example message')
+    # await channel.send('Example message')
+    
+    checker = get_diablo_tracker()
+    new_entry_5 = check_new_entry(checker, 5, record_list_5)
+    new_entry_6 = check_new_entry(checker, 6, record_list_6)
+
+    for key in new_entry_5:
+        progress = int(new_entry_5[key]["progress"])
+        message = build_msg_str(key, progress)
+        await channel.send(message)
+
+    for key in new_entry_6:
+        progress = int(new_entry_6[key]["progress"])
+        message = build_msg_str(key, progress)
+        await channel.send(message)
 
 @myloop.before_loop
 async def before_myloop():
