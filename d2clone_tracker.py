@@ -42,8 +42,19 @@ class SortKey:
     HARDCORE = "h"
     TIMESTAMP = "t"
 
-record_list_5 = dict()
-record_list_6 = dict()
+
+class msg_prefix:
+    TEXT = {
+        1: "Terror gazes upon Sanctuary",
+        2: "Terror approaches Sanctuary",
+        3: "Terror begins to form within Sanctuary",
+        4: "Terror spreads across Sanctuary",
+        5: "超级大菠萝即将降临", 
+        #5:"Terror is about to be unleashed upon Sanctuary"
+        6: "超级大菠萝已降临"
+    }
+
+
 
 
 bot = commands.Bot(command_prefix="!")
@@ -64,21 +75,33 @@ def get_diablo_tracker(
     response = requests.get(API_BASE_URL, params=filtered_params, headers=headers)
     return response.json() if response.status_code == 200 else None
 
-def check_new_entry(tracker, lv, record_list):
-    updated_tracker = dict()
+def init_record_list():
+    record_list = dict()
+    checker = get_diablo_tracker()
+
+    for entry in checker:
+        key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
+        record_list[key] = 0
+
+    return record_list
+
+
+def check_new_entry(tracker, levels, record_list):
+    new_entry = dict()
+    
     for entry in tracker:
         key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
-        if int(entry["progress"]) == lv:
-            if key not in record_list:
-                updated_tracker[key] = entry
-                record_list[key] = entry
-        else:
-            if key in record_list:
-                record_list.pop(key)
-    return updated_tracker
+        progress = int(entry["progress"])
+
+        if progress in levels and progress > record_list[key]:
+            new_entry[key] = progress
+
+        record_list[key] = progress
+                    
+    return new_entry
 
 def build_msg_str(key, progress):
-    return f"**[{progress}/6]** {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
+    return f"**[{progress}/6]** {msg_prefix.TEXT[progress]} {'|'} {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
 
 
 @bot.event
@@ -118,32 +141,29 @@ async def scrabblepoints(ctx, arg):
         points += score[c]
     await ctx.send(points)
 
+    
+record_list = init_record_list()
         
 @tasks.loop(seconds=60.0)
 async def myloop():
     print("testing 1")
-    channel = bot.get_channel(894561623816155178)
-    # await channel.send('Example message')
-    
     checker = get_diablo_tracker()
-    new_entry_5 = check_new_entry(checker, 2, record_list_5)
-    new_entry_6 = check_new_entry(checker, 3, record_list_6)
+    new_entry = check_new_entry(checker, [2, 3], record_list)
 
-    for key in new_entry_5:
-        progress = int(new_entry_5[key]["progress"])
+    for key in new_entry:
+        progress = new_entry[key]
         message = build_msg_str(key, progress)
+        print(message)
+        channel = bot.get_channel(894561623816155178)
         await channel.send(message)
-
-    for key in new_entry_6:
-        progress = int(new_entry_6[key]["progress"])
-        message = build_msg_str(key, progress)
-        await channel.send(message)
+    
 
 @myloop.before_loop
 async def before_myloop():
     print('waiting...')
     await bot.wait_until_ready()
         
+
 myloop.start()
 bot.run(TOKEN)
 
