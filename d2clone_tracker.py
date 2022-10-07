@@ -118,7 +118,7 @@ async def scrabblepoints(ctx, arg):
     await ctx.send(points)
 
         
-@tasks.loop(minutes=1.0)
+@tasks.loop(seconds=60.0)
 async def myloop():
     print("testing 1")
     channel = bot.get_channel(894561623816155178)
