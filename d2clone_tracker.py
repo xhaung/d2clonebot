@@ -129,7 +129,7 @@ def status_text(list, region=None, ladder=None, hardcore=None):
     text = ""
     for key, value in list.items():
         if filter_realm(key, region, ladder, hardcore):
-            text += f"**[{value}/6]**   {Regions.TEXT[key[0]].ljust(11)} {Ladder.TEXT[key[1]].ljust(18)} {Hardcore.TEXT[key[2]]}\n"
+            text += f"**[{value}/6]**   {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
     text += "> Data courtesy of diablo2.io"
     return text
 
