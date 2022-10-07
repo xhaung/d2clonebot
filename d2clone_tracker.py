@@ -97,23 +97,24 @@ def init_record_list():
 
     return record_list
 
-
-def check_new_entry(tracker, levels, record_list):
+def check_new_entry(tracker, levels, record_list=None):
     new_entry = dict()
     
     for entry in tracker:
         key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
         progress = int(entry["progress"])
 
-        if progress in levels and progress > record_list[key]:
+        if progress in levels and (record_list is None or progress > record_list[key]):
             new_entry[key] = progress
 
-        record_list[key] = progress
+        if record_list is not None:
+            record_list[key] = progress
                     
     return new_entry
 
 def build_msg_str(key, progress):
     return f"**[{progress}/6]** {msg_prefix.TEXT[progress]} {'|'} {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
+
 
 
 @bot.event
