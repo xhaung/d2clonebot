@@ -265,6 +265,7 @@ async def before_notify_loop():
 
 @tasks.loop(hours=4.0)
 async def period_loop():
+    global first_loop
     if not first_loop:
         checker = get_diablo_tracker()
         list_entry = check_new_entry(checker, [3, 4, 5, 6])
