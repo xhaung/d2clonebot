@@ -174,7 +174,15 @@ async def notify_loop():
         progress = new_entry[key]
         message = build_msg_str(key, progress)
         channel_id = CHANNEL_ID.SEL[key[1]][key[2]]
-        channel_send_msg(channel_id, message)
+        # channel_send_msg(channel_id, message)
+        
+        try:
+            print(channel_id, message)
+            channel = bot.get_channel(channel_id)
+            await channel.send(message)
+        except Exception as e:
+            print("[Error]:", e)
+
     
 
 @notify_loop.before_loop
@@ -197,9 +205,15 @@ async def period_loop():
     if len(list_entry) == 0:
         message += "No region's terror progresses beyond 3 at the moment"
         
-    print(message)
+    #print(message)
     channel_id = CHANNEL_ID.PERIOD
-    channel_send_msg(channel_id, message)
+    #channel_send_msg(channel_id, message)
+    try:
+        print(channel_id, message)
+        channel = bot.get_channel(channel_id)
+        await channel.send(message)
+    except Exception as e:
+        print("[Error]:", e)
     
 
 @period_loop.before_loop
