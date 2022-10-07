@@ -54,7 +54,17 @@ class msg_prefix:
         6: "超级大菠萝已降临"
     }
 
-
+class CHANNEL_ID:
+    SEL = {
+        Ladder.LADDER: {
+            Hardcore.HARDCORE: 1027889965327188038,
+            Hardcore.SOFTCORE: 1027889844506075198
+        },
+        Ladder.NON_LADDER: {
+            Hardcore.HARDCORE: 1027890122097696768,
+            Hardcore.SOFTCORE: 1027890065801756732
+        }
+    }
 
 
 bot = commands.Bot(command_prefix="!")
@@ -148,13 +158,14 @@ record_list = init_record_list()
 async def myloop():
     print("testing 1")
     checker = get_diablo_tracker()
-    new_entry = check_new_entry(checker, [2, 3], record_list)
+    new_entry = check_new_entry(checker, [2, 3, 4, 5, 6], record_list)
 
     for key in new_entry:
         progress = new_entry[key]
         message = build_msg_str(key, progress)
         print(message)
-        channel = bot.get_channel(894561623816155178)
+        channel_id = CHANNEL_ID.SEL[key[1]][key[2]]
+        channel = bot.get_channel(channel_id)
         await channel.send(message)
     
 
