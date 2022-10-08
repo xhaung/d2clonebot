@@ -270,7 +270,7 @@ async def period_loop():
         checker = get_diablo_tracker()
         list_entry = check_new_entry(checker, [3, 4, 5, 6])
 
-        message = "---- Current terror progress (>2) ----\n"
+        message = "---- Current terror progress (> 2) ----\n"
         for key in list_entry:
             progress = list_entry[key]
             message += build_msg_str(key, progress)
