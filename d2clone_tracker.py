@@ -53,7 +53,7 @@ class msg_prefix:
         4: "Terror spreads across Sanctuary",
         5: "超级大菠萝即将降临", 
         #5:"Terror is about to be unleashed upon Sanctuary"
-        6: "超级大菠萝已降临"
+        6: "超级大菠萝已降临！"
     }
 
 class CHANNEL_ID:
@@ -236,7 +236,7 @@ async def scrabblepoints(ctx, arg):
 record_list = init_record_list(True)
 first_loop = True
         
-@tasks.loop(seconds=60.0)
+@tasks.loop(seconds=30.0)
 async def notify_loop():
     #print("testing 1")
     checker = get_diablo_tracker()
@@ -263,7 +263,7 @@ async def before_notify_loop():
     await bot.wait_until_ready()
 
 
-@tasks.loop(hours=4.0)
+@tasks.loop(hours=6.0)
 async def period_loop():
     global first_loop
     if not first_loop:
