@@ -118,7 +118,7 @@ def check_new_entry(tracker, levels, record_list=None):
                     
     return new_entry
 
-def build_msg_str(key, progress, with_msg_prefix = True):
+def build_msg_str(key, progress, with_msg_prefix = False):
     prefix = msg_prefix.TEXT[progress] if with_msg_prefix else ''
     return f"**[{progress}/6]** {prefix} {'|'} {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
 
@@ -236,7 +236,7 @@ async def scrabblepoints(ctx, arg):
 record_list = init_record_list(True)
 first_loop = True
         
-@tasks.loop(seconds=30.0)
+@tasks.loop(seconds=20.0)
 async def notify_loop():
     #print("testing 1")
     checker = get_diablo_tracker()
