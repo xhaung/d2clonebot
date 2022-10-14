@@ -242,7 +242,7 @@ first_loop = True
 async def notify_loop():
     #print("testing 1")
     checker = get_diablo_tracker()
-    new_entry = check_new_entry(checker, [4, 5, 6], record_list)
+    new_entry = check_new_entry(checker, [3, 4, 5, 6], record_list)
 
     for key in new_entry:
         progress = new_entry[key]
