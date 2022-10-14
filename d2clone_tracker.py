@@ -17,7 +17,8 @@ class Regions:
     AMERICAS = 1
     EUROPE = 2
     ASIA = 3
-    TEXT = {1: "Americas", 2: "Europe", 3: "Asia"}
+    #TEXT = {1: "Americas", 2: "Europe", 3: "Asia"}
+    TEXT = {1: "AM", 2: "EU", 3: "AS"}
 
 
 class Ladder:
@@ -29,7 +30,8 @@ class Ladder:
 class Hardcore:
     HARDCORE = 1
     SOFTCORE = 2
-    TEXT = {1: "Hardcore", 2: "Softcore"}
+    #TEXT = {1: "Hardcore", 2: "Softcore"}
+    TEXT = {1: "HC", 2: "SC"}
 
 
 class SortDirection:
