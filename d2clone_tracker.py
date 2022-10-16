@@ -124,7 +124,9 @@ def check_new_entry(tracker, levels, record_list=None):
 
 def build_msg_str(key, progress, with_msg_prefix = False):
     prefix = msg_prefix.TEXT[progress] if with_msg_prefix else ''
-    return f"**[{progress}/6]** {prefix} {'|'} {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
+    text = f"**[{progress}/6]** {prefix} {'|'} **{Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}**\n"
+    text += "| Data courtesy of diablo2.io"
+    return text
 
 
 
