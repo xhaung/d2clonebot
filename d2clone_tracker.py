@@ -240,7 +240,7 @@ async def scrabblepoints(ctx, arg):
 """
     
 record_list = init_record_list(True)
-first_loop = True
+first_loop = False
         
 @tasks.loop(seconds=60.0)
 async def notify_loop():
