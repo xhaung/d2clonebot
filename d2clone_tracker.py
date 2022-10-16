@@ -122,10 +122,11 @@ def check_new_entry(tracker, levels, record_list=None):
                     
     return new_entry
 
-def build_msg_str(key, progress, with_msg_prefix = False):
+def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True):
     prefix = msg_prefix.TEXT[progress] if with_msg_prefix else ''
     text = f"**[{progress}/6]** {prefix} {'|'} **{Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}**\n"
-    text += "| Data courtesy of diablo2.io"
+    if with_credict:
+        text += "| Data courtesy of diablo2.io"
     return text
 
 
@@ -279,11 +280,13 @@ async def period_loop():
         message = "---- Current terror progress (> 2) ----\n"
         for key in list_entry:
             progress = list_entry[key]
-            message += build_msg_str(key, progress)
+            message += build_msg_str(key, progress, with_credict=False)
 
         if len(list_entry) == 0:
-            message += "No region's terror progresses beyond 3 at the moment"
-
+            message += "No region's terror progresses beyond 3 at the moment\n"
+            
+        message += "| Data courtesy of diablo2.io"
+            
         #print(message)
         channel_id = CHANNEL_ID.PERIOD
         #channel_send_msg(channel_id, message)
