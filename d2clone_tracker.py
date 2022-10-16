@@ -89,6 +89,8 @@ def get_diablo_tracker(
     filtered_params = {k: v for k, v in params.items() if v is not None}
     headers = {"User-Agent": "d2clone-discord"}
     response = requests.get(API_BASE_URL, params=filtered_params, headers=headers)
+    if response.status_code != 200:
+        print("[Error] error getting progress", response.status_code)
     return response.json() if response.status_code == 200 else None
 
 def init_record_list(real_value = False, sort_list = False):
@@ -238,7 +240,7 @@ async def scrabblepoints(ctx, arg):
 record_list = init_record_list(True)
 first_loop = True
         
-@tasks.loop(seconds=20.0)
+@tasks.loop(seconds=60.0)
 async def notify_loop():
     #print("testing 1")
     checker = get_diablo_tracker()
