@@ -295,7 +295,7 @@ async def period_loop():
             channel_id = CHANNEL_ID.PERIOD
             #channel_send_msg(channel_id, message)
             try:
-                print(channel_id, message)
+                print(channel_id, text)
                 channel = bot.get_channel(channel_id)
                 message = await channel.fetch_message(FULL_DC_MSG_D2RIO)
                 await message.edit(content=text)
