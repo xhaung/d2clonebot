@@ -87,5 +87,6 @@ def get_runewizzard_tracker():
     return response.json() if response.status_code == 200 else None
 
 print("starting test")
+print(TOKEN_D2RWZ)
 d2rwz_checler = get_runewizzard_tracker()
 print(d2rwz_checler)
