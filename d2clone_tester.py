@@ -84,7 +84,7 @@ class CHANNEL_ID:
 def get_runewizzard_tracker():
 
     token_params = {"token": TOKEN_D2RWZ}
-    response = requests.get(API_D2RWZ_WALK, params=token_params)
+    response = requests.get(API_D2RWZ_TZ, params=token_params)
     if response.status_code != 200:
         print("[Error] error getting D2RWZ DC progress", response.status_code)
     return response.json() if response.status_code == 200 else None
