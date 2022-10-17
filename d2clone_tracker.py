@@ -410,11 +410,13 @@ period_loop.start()
 
 TZ_TIME = 180
 previous_zone = ""
+skip_first_notify = True
 
 @tasks.loop(seconds=TZ_TIME)
 async def tz_loop():
     global TZ_TIME
     global previous_zone
+    global skip_first_notify
     checker = get_runewizzard_tracker(API_D2RWZ_TZ)
     if checker is not None:
         ## Update waiting time
@@ -442,13 +444,14 @@ async def tz_loop():
         ## notification
         try:
             current_zone = checker['terrorZone']['zone']
-            if current_zone in top_terror_zone.LIST and current_zone is not previous_zone:
-                notify_text = f"***TOP {top_terror_zone.LIST.index(current_zone)}*** out of {len(top_terror_zone.LIST)} most popular terror zones\n"
+            if current_zone in top_terror_zone.LIST and current_zone is not previous_zone and not skip_first_notify:
+                notify_text = f"***TOP {top_terror_zone.LIST.index(current_zone) + 1}*** out of {len(top_terror_zone.LIST)} most popular terror zones\n"
                 notify_text += text
                 channel_id = CHANNEL_ID.TZ_NOTIFY
                 channel = bot.get_channel(channel_id)
                 await channel.send(notify_text)
             previous_zone = current_zone
+            skip_first_notify = False
         except Exception as e:
             print("[Error]:", e)
     
