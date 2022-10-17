@@ -89,7 +89,7 @@ def get_runewizzard_tracker():
         print("[Error] error getting D2RWZ DC progress", response.status_code)
     return response.json() if response.status_code == 200 else None
 
-print("starting test")
+print("starting test 2")
 print("TOKEN_DC", TOKEN_DC)
 print("TOKEN_D2RWZ", TOKEN_D2RWZ)
 d2rwz_checler = get_runewizzard_tracker()
