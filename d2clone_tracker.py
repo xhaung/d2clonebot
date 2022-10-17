@@ -285,7 +285,7 @@ async def notify_loop():
         now = datetime.now()
         # dd/mm/YY H:M:S
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        text += "Last updated: " +  dt_string + "\n"
+        text += "Last updated: " +  dt_string + "\n\n"
         
         for key in list_entry:
             progress = list_entry[key]
