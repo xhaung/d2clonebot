@@ -11,10 +11,17 @@ import pytz
 load_dotenv()
 
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://diablo2.io/dclone_api.php")
-DISCORD_CHANNEL_ID = int(os.environ.get("DISCORD_CHANNEL_ID", 0))
-TOKEN = os.environ.get("DISCORD_TOKEN")
-FULL_DC_MSG_D2RIO = 1031507186179911691
+API_D2RWZ_DC_PROCESS = os.environ.get("API_D2RWZ_DC_PROCESS", "https://d2runewizard.com/api/diablo-clone-progress/all")
+API_D2RWZ_TZ = os.environ.get("API_D2RWZ_DC_PROCESS", "https://d2runewizard.com/api/terror-zone")
+API_D2RWZ_WALK = os.environ.get("API_D2RWZ_WALK", "https://d2runewizard.com/api/diablo-clone-progress/planned-walks")
+
+TOKEN_DC = os.environ.get("DISCORD_TOKEN")
+TOKEN_D2RWZ = os.environ.get("D2RWZ_TOKEN")
+
 MINIMUM_TB_LEVEL = 0
+
+MSG_ID_FULL_DC_D2RIO = 1031507186179911691
+MSG_ID_TZ_D2RWZD = 1028027236827287623
 
 
 class Regions:
@@ -98,6 +105,14 @@ def get_diablo_tracker(
         print("[Error] error getting progress", response.status_code)
     return response.json() if response.status_code == 200 else None
 
+def get_runewizzard_tracker(api_addr):
+    token_params = {"token": TOKEN_D2RWZ}
+    response = requests.get(api_addr, params=token_params)
+    if response.status_code != 200:
+        print("[Error] error getting D2RWZ DC progress", response.status_code)
+    return response.json() if response.status_code == 200 else None
+
+
 def init_record_list(real_value = False, sort_list = False):
     record_list = OrderedDict()
     checker = get_diablo_tracker()
@@ -128,6 +143,8 @@ def check_new_entry(tracker, levels, record_list=None):
     new_entry = collections.OrderedDict(sorted(new_entry.items()))
     return new_entry
 
+## Message handling ###
+
 def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True, full_text=False):
     prefix = msg_prefix.TEXT[progress] if with_msg_prefix else ''
     if full_text:
@@ -138,9 +155,25 @@ def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True, f
         text += "\n> Data courtesy of diablo2.io"
     return text
 
+def create_tz_msg(tz_info):
+    print(type(tz_info), "\n")
+    sys.stdout.flush()
+    z = tz_info['terrorZone']
+    print(z, "\n")
+    sys.stdout.flush()
 
+    utc_now = pytz.utc.localize(datetime.datetime(1970,1,1) + datetime.timedelta(seconds=z['lastUpdate']['seconds']))
+    pst_now = utc_now.astimezone(pytz.timezone("CET"))
+    
+    string = f"--- ***Terror Zone (D2RuneWizzard)*** ---\n"
+    string += f"Zone: ***{z['zone']}***\n"
+    string += f"Act: {z['act']}\n"
+    string += f"Last Updated: {pst_now.time()} (CET)\n"
+    string += f"Reports (Probability): {z['highestProbabilityZone']['amount']}" + f" (~{z['highestProbabilityZone']['probability']*100}%)\n"
+    string += f"> Provided by: {tz_info['providedBy']}\n"
 
-## Message handling
+    return string
+
 def status_text(list, region=None, ladder=None, hardcore=None, fulltext=False):
     text = ""
     for key, value in list.items():
@@ -302,7 +335,7 @@ async def notify_loop():
         try:
             print(channel_id, "last full update: " + pst_str)
             channel = bot.get_channel(channel_id)
-            message = await channel.fetch_message(FULL_DC_MSG_D2RIO)
+            message = await channel.fetch_message(MSG_ID_FULL_DC_D2RIO)
             await message.edit(content=text)
             # await channel.send(message)
         except Exception as e:
@@ -361,8 +394,41 @@ period_loop.start()
 
 """
 
+TZ_TIME = 62.0
+
+@tasks.loop(seconds=TZ_TIME)
+async def tz_loop():
+    global TZ_TIME
+    checker = get_runewizzard_tracker(API_D2RWZ_TZ)
+    if checker is not None:
+        ## Update waiting time
+        current_minutes = datetime.utcnow().strftime("%M")
+        TZ_TIME = max(30, min(current_minutes, checker['terrorZone']['highestProbabilityZone']['amount'])*60)
+        print(f"Time:{current_minutes}, Amount:{checker['terrorZone']['highestProbabilityZone']['amount']} ,TZ_TIME:{TZ_TIME}\n"
+        
+        text = create_tz_msg(checker)
+        
+        #print(message)
+        channel_id = CHANNEL_ID.TEST
+        try:
+            print(channel_id, "last tz: " + text)
+            channel = bot.get_channel(channel_id)
+            message = await channel.fetch_message(MSG_ID_TZ_D2RWZD)
+            await message.edit(content=text)
+            # await channel.send(message)
+        except Exception as e:
+            print("[Error]:", e)
+
+    
+
+@tz_loop.before_loop
+async def before_tz_loop():
+    print('tz loop waiting...')
+    await bot.wait_until_ready()
+
+
 
 notify_loop.start()
-bot.run(TOKEN)
-
+tz_loop.start()
+bot.run(TOKEN_DC)
 
