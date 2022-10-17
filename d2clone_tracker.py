@@ -441,7 +441,7 @@ async def tz_loop():
             
         ## notification
         try:
-        current_zone = checker['terrorZone']['zone']
+            current_zone = checker['terrorZone']['zone']
             if current_zone in top_terror_zone.LIST and current_zone is not previous_zone:
                 notify_text = f"***TOP {top_terror_zone.LIST.index(current_zone)}*** out of {len(top_terror_zone.LIST)} most popular terror zones\n"
                 notify_text += text
