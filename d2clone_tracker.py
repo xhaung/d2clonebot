@@ -255,7 +255,7 @@ async def scrabblepoints(ctx, arg):
 record_list = init_record_list(True)
 first_loop = False
         
-@tasks.loop(seconds=60.0)
+@tasks.loop(seconds=62.0)
 async def notify_loop():
     #print("testing 1")
     checker = get_diablo_tracker()
@@ -300,7 +300,7 @@ async def notify_loop():
         channel_id = CHANNEL_ID.PERIOD
         #channel_send_msg(channel_id, message)
         try:
-            print(channel_id, text)
+            print(channel_id, "last full update: " + pst_str)
             channel = bot.get_channel(channel_id)
             message = await channel.fetch_message(FULL_DC_MSG_D2RIO)
             await message.edit(content=text)
