@@ -404,7 +404,7 @@ async def tz_loop():
         ## Update waiting time
         current_minutes = datetime.utcnow().strftime("%M")
         TZ_TIME = max(30, min(current_minutes, checker['terrorZone']['highestProbabilityZone']['amount'])*60)
-        print(f"Time:{current_minutes}, Amount:{checker['terrorZone']['highestProbabilityZone']['amount']} ,TZ_TIME:{TZ_TIME}\n"
+        print(f"Time:{current_minutes}, Amount:{checker['terrorZone']['highestProbabilityZone']['amount']} ,TZ_TIME:{TZ_TIME}\n")
         
         text = create_tz_msg(checker)
         
