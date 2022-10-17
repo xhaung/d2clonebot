@@ -19,20 +19,21 @@ class Regions:
     AMERICAS = 1
     EUROPE = 2
     ASIA = 3
-    #TEXT = {1: "Americas", 2: "Europe", 3: "Asia"}
+    FULLTEXT = {1: "Americas", 2: "Europe", 3: "Asia"}
     TEXT = {1: "AM", 2: "EU", 3: "AS"}
 
 
 class Ladder:
     LADDER = 1
     NON_LADDER = 2
+    FULLTEXT = {1: "Ladder", 2: "Non-ladder"}
     TEXT = {1: "Ladder", 2: "Non-ladder"}
 
 
 class Hardcore:
     HARDCORE = 1
     SOFTCORE = 2
-    #TEXT = {1: "Hardcore", 2: "Softcore"}
+    FULLTEXT = {1: "Hardcore", 2: "Softcore"}
     TEXT = {1: "HC", 2: "SC"}
 
 
@@ -110,7 +111,7 @@ def init_record_list(real_value = False, sort_list = False):
 
 
 def check_new_entry(tracker, levels, record_list=None):
-    new_entry = dict()
+    new_entry = OrderedDict()
     
     for entry in tracker:
         key = (int(entry["region"]), int(entry["ladder"]), int(entry["hc"]))
@@ -121,12 +122,16 @@ def check_new_entry(tracker, levels, record_list=None):
 
         if record_list is not None:
             record_list[key] = progress
-                    
+    
+    new_entry = collections.OrderedDict(sorted(new_entry.items()))
     return new_entry
 
-def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True):
+def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True, full_text=False):
     prefix = msg_prefix.TEXT[progress] if with_msg_prefix else ''
-    text = f"**[{progress}/6]** {prefix} {'|'} **{Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}**"
+    if full_text:
+        text = f"**[{progress}/6]** {prefix} {'|'} **{Regions.FULLTEXT[key[0]]} {Ladder.FULLTEXT[key[1]]} {Hardcore.FULLTEXT[key[2]]}**"
+    else:
+        text = f"**[{progress}/6]** {prefix} {'|'} **{Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}**"
     if with_credict:
         text += "\n> Data courtesy of diablo2.io"
     return text
@@ -134,11 +139,14 @@ def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True):
 
 
 ## Message handling
-def status_text(list, region=None, ladder=None, hardcore=None):
+def status_text(list, region=None, ladder=None, hardcore=None, fulltext=False):
     text = ""
     for key, value in list.items():
         if filter_realm(key, region, ladder, hardcore):
-            text += f"**[{value}/6]**   {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
+            if fulltext:
+                text += f"**[{value}/6]**   {Regions.FULLTEXT[key[0]]} {Ladder.FULLTEXT[key[1]]} {Hardcore.FULLTEXT[key[2]]}\n"
+            else:
+                text += f"**[{value}/6]**   {Regions.TEXT[key[0]]} {Ladder.TEXT[key[1]]} {Hardcore.TEXT[key[2]]}\n"
     text += "> Data courtesy of diablo2.io"
     return text
 
@@ -281,10 +289,10 @@ async def period_loop():
         if checker is not None:
             list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
 
-            text = "---- Current terror progress (> {MINIMUM_TB_LEVEL}) ----\n"
+            text = "---- Current terror progress From Diablo2.io ----\n"
             for key in list_entry:
                 progress = list_entry[key]
-                text += build_msg_str(key, progress, with_credict=False) + "\n"
+                text += build_msg_str(key, progress, with_credict=False, full_text=True) + "\n"
 
             if len(list_entry) == 0:
                 text += "No region's terror progresses beyond {MINIMUM_TB_LEVEL+1} at the moment"
