@@ -392,7 +392,7 @@ period_loop.start()
 
 """
 
-TZ_TIME = 62.0
+TZ_TIME = 180
 
 @tasks.loop(seconds=TZ_TIME)
 async def tz_loop():
