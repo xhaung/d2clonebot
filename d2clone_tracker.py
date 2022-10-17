@@ -282,7 +282,7 @@ async def notify_loop():
 
         text = "\n--- ***Terror progress (Diablo2.io)*** ---\n"
         # datetime object containing current date and time
-        utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+        utc_now = pytz.utc.localize(datetime.utcnow())
         pst_now = utc_now.astimezone(pytz.timezone("CET"))
         pst_str = pst_now.strftime("%H:%M:%S")
         text += "| Last updated: " +  pst_str + " (CET)\n\n"
