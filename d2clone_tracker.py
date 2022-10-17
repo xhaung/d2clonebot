@@ -407,7 +407,7 @@ async def tz_loop():
         text = create_tz_msg(checker)
         
         #print(message)
-        channel_id = CHANNEL_ID.TEST
+        channel_id = CHANNEL_ID.PERIOD
         try:
             # print(channel_id, "last tz: " + text)
             channel = bot.get_channel(channel_id)
