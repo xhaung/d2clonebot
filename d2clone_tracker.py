@@ -166,7 +166,7 @@ def create_tz_msg(tz_info):
     string += f"Act: ***{z['act']}***\n"
     string += f"Zone: ***{z['zone']}***\n"
     string += f"Last Updated: {pst_now.time()} (CET)\n"
-    string += f"Reports (Probability): {z['highestProbabilityZone']['amount']}" + f" (~{z['highestProbabilityZone']['probability']*100}%)\n"
+    string += f"Reports (Probability): {z['highestProbabilityZone']['amount']}" + f" ({z['highestProbabilityZone']['probability']*100}%)\n"
     string += f"> Provided by: <{tz_info['providedBy']}>\n"
     print(f"Time {pst_now.time()}, Act {z['act']}, Zone {z['zone']}")
 
