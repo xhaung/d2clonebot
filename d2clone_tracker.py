@@ -6,6 +6,7 @@ import requests
 import collections 
 from collections import OrderedDict
 from datetime import datetime
+from datetime import timedelta
 import pytz
 
 load_dotenv()
@@ -156,13 +157,9 @@ def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True, f
     return text
 
 def create_tz_msg(tz_info):
-    print(type(tz_info), "\n")
-    sys.stdout.flush()
     z = tz_info['terrorZone']
-    print(z, "\n")
-    sys.stdout.flush()
-
-    utc_now = pytz.utc.localize(datetime.datetime(1970,1,1) + datetime.timedelta(seconds=z['lastUpdate']['seconds']))
+    
+    utc_now = pytz.utc.localize(datetime(1970,1,1) + timedelta(seconds=z['lastUpdate']['seconds']))
     pst_now = utc_now.astimezone(pytz.timezone("CET"))
     
     string = f"--- ***Terror Zone (D2RuneWizzard)*** ---\n"
