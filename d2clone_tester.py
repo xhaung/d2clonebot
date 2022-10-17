@@ -87,3 +87,4 @@ def get_runewizzard_tracker():
 
 
 d2rwz_checler = get_runewizzard_tracker()
+print(d2rwz_checler)
