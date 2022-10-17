@@ -285,7 +285,7 @@ async def notify_loop():
         utc_now = pytz.utc.localize(datetime.datetime.utcnow())
         pst_now = utc_now.astimezone(pytz.timezone("CET"))
         pst_str = pst_now.strftime("%H:%M:%S")
-        text += "> Last updated: " +  pst_str + " (CET)\n"
+        text += "| Last updated: " +  pst_str + " (CET)\n\n"
         
         for key in list_entry:
             progress = list_entry[key]
