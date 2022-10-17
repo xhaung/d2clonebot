@@ -168,7 +168,7 @@ def create_tz_msg(tz_info):
     string += f"Last Updated: {pst_now.time()} (CET)\n"
     string += f"Reports (Probability): {z['highestProbabilityZone']['amount']}" + f" (~{z['highestProbabilityZone']['probability']*100}%)\n"
     string += f"> Provided by: <{tz_info['providedBy']}>\n"
-    print(f"Time {pst_now.time()}, Act {z['act']}, Zone {z['zone']}"
+    print(f"Time {pst_now.time()}, Act {z['act']}, Zone {z['zone']}")
 
     return string
 
@@ -413,7 +413,10 @@ async def tz_loop():
             channel = bot.get_channel(channel_id)
             message = await channel.fetch_message(MSG_ID_TZ_D2RWZD)
             await message.edit(content=text)
-            # await channel.send(message)
+            
+            channel_id = CHANNEL_ID.PERIOD
+            channel = bot.get_channel(channel_id)
+            await channel.send(text)
         except Exception as e:
             print("[Error]:", e)
 
