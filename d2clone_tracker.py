@@ -162,12 +162,13 @@ def create_tz_msg(tz_info):
     utc_now = pytz.utc.localize(datetime(1970,1,1) + timedelta(seconds=z['lastUpdate']['seconds']))
     pst_now = utc_now.astimezone(pytz.timezone("CET"))
     
-    string = f"--- ***Terror Zone (D2RuneWizzard)*** ---\n"
+    string = f"--- ***Terror Zone (D2RuneWizzard)*** ---\n\n"
+    string += f"Act: ***{z['act']}***\n"
     string += f"Zone: ***{z['zone']}***\n"
-    string += f"Act: {z['act']}\n"
     string += f"Last Updated: {pst_now.time()} (CET)\n"
     string += f"Reports (Probability): {z['highestProbabilityZone']['amount']}" + f" (~{z['highestProbabilityZone']['probability']*100}%)\n"
-    string += f"> Provided by: {tz_info['providedBy']}\n"
+    string += f"> Provided by: <{tz_info['providedBy']}>\n"
+    print(f"Time {pst_now.time()}, Act {z['act']}, Zone {z['zone']}"
 
     return string
 
