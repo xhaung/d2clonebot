@@ -403,7 +403,8 @@ async def tz_loop():
         current_minutes = datetime.utcnow().strftime("%M")
         TZ_TIME = max(30, min((60 - int(current_minutes)), checker['terrorZone']['highestProbabilityZone']['amount'])*60)
         print(f"Time:{current_minutes}, Amount:{checker['terrorZone']['highestProbabilityZone']['amount']} ,TZ_TIME:{TZ_TIME}\n")
-
+        tasks.change_interval(TZ_TIME)
+        
         text = create_tz_msg(checker)
         
         #print(message)
