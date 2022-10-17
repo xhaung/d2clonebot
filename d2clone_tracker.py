@@ -247,7 +247,7 @@ first_loop = False
 async def notify_loop():
     #print("testing 1")
     checker = get_diablo_tracker()
-    if checker iis not None:
+    if checker is not None:
         new_entry = check_new_entry(checker, [3, 4, 5, 6], record_list)
 
         for key in new_entry:
