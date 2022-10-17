@@ -403,9 +403,9 @@ async def tz_loop():
         current_minutes = datetime.utcnow().strftime("%M")
         TZ_TIME = max(30, min((60 - int(current_minutes)), checker['terrorZone']['highestProbabilityZone']['amount'])*60)
         print(f"Time:{current_minutes}, Amount:{checker['terrorZone']['highestProbabilityZone']['amount']} ,TZ_TIME:{TZ_TIME}\n")
-        tz_loop.change_interval(TZ_TIME)
+        tz_loop.change_interval(seconds=TZ_TIME)
         
-        text = create_tz_msg(seconds=checker)
+        text = create_tz_msg(checker)
         
         #print(message)
         channel_id = CHANNEL_ID.PERIOD
