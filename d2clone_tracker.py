@@ -71,6 +71,21 @@ class msg_prefix:
         6: "超级大菠萝已降临！"
     }
 
+class top_terror_zone:
+    LIST = [
+        "Moo Moo Farm",
+        "Chaos Sanctuary",
+        "Worldstone Keep, Throne of Destruction, and Worldstone Chamber",
+        "Tal Rasha's Tombs and Tal Rasha's Chamber",
+        "Travincal",
+        "The Pit",
+        "Arcane Sanctuary",
+        "The Forgotten Tower",
+        "Nihlathak's Temple, Halls of Anguish, Halls of Pain, and Halls of Vaught",
+        "Tristram",
+        "Cathedral and Catacombs"
+    ]
+    
 class CHANNEL_ID:
     SEL = {
         Ladder.LADDER: {
@@ -84,6 +99,7 @@ class CHANNEL_ID:
     }
     PERIOD = 1027894748675059762
     TEST = 894561623816155178
+    TZ_NOTIFY = 1031688784565248051
 
 
 bot = commands.Bot(command_prefix="!")
@@ -393,10 +409,12 @@ period_loop.start()
 """
 
 TZ_TIME = 180
+previous_zone = ""
 
 @tasks.loop(seconds=TZ_TIME)
 async def tz_loop():
     global TZ_TIME
+    global previous_zone
     checker = get_runewizzard_tracker(API_D2RWZ_TZ)
     if checker is not None:
         ## Update waiting time
@@ -420,7 +438,19 @@ async def tz_loop():
             # await channel.send(text)
         except Exception as e:
             print("[Error]:", e)
-
+            
+        ## notification
+        try:
+        current_zone = checker['terrorZone']['zone']
+            if current_zone in top_terror_zone.LIST and current_zone is not previous_zone:
+                notify_text = f"***TOP {top_terror_zone.LIST.index(current_zone)}*** out of {len(top_terror_zone.LIST)} most popular terror zones\n"
+                notify_text += text
+                channel_id = CHANNEL_ID.TZ_NOTIFY
+                channel = bot.get_channel(channel_id)
+                await channel.send(notify_text)
+            previous_zone = current_zone
+        except Exception as e:
+            print("[Error]:", e)
     
 
 @tz_loop.before_loop
