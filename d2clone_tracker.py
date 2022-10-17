@@ -258,6 +258,7 @@ async def notify_loop():
     #print("testing 1")
     checker = get_diablo_tracker()
     if checker is not None:
+        ## Print per channel update
         new_entry = check_new_entry(checker, [3, 4, 5, 6], record_list)
 
         for key in new_entry:
@@ -272,6 +273,32 @@ async def notify_loop():
                 await channel.send(message)
             except Exception as e:
                 print("[Error]:", e)
+         
+        ## Print full table update
+
+        list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
+
+        text = "--- ***Terror progress (Diablo2.io)*** ---\n"
+        for key in list_entry:
+            progress = list_entry[key]
+            text += build_msg_str(key, progress, with_credict=False, full_text=True) + "\n"
+
+        if len(list_entry) == 0:
+            text += "No region's terror progresses beyond {MINIMUM_TB_LEVEL+1} at the moment\n"
+
+        text += "> Data courtesy of diablo2.io"
+
+        #print(message)
+        channel_id = CHANNEL_ID.PERIOD
+        #channel_send_msg(channel_id, message)
+        try:
+            print(channel_id, text)
+            channel = bot.get_channel(channel_id)
+            message = await channel.fetch_message(FULL_DC_MSG_D2RIO)
+            await message.edit(content=text)
+            # await channel.send(message)
+        except Exception as e:
+            print("[Error]:", e)
 
     
 
@@ -280,7 +307,7 @@ async def before_notify_loop():
     print('waiting...')
     await bot.wait_until_ready()
 
-
+"""
 @tasks.loop(hours=6.0)
 async def period_loop():
     global first_loop
@@ -289,15 +316,15 @@ async def period_loop():
         if checker is not None:
             list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
 
-            text = "---- Current terror progress From Diablo2.io ----\n"
+            text = "--- ***Terror progress (Diablo2.io)*** ---\n"
             for key in list_entry:
                 progress = list_entry[key]
                 text += build_msg_str(key, progress, with_credict=False, full_text=True) + "\n"
 
             if len(list_entry) == 0:
-                text += "No region's terror progresses beyond {MINIMUM_TB_LEVEL+1} at the moment"
+                text += "No region's terror progresses beyond {MINIMUM_TB_LEVEL+1} at the moment\n"
 
-            text += "\n> Data courtesy of diablo2.io"
+            text += "> Data courtesy of diablo2.io"
 
             #print(message)
             channel_id = CHANNEL_ID.PERIOD
@@ -321,9 +348,13 @@ async def before_period_loop():
     print('waiting...')
     await bot.wait_until_ready()
     
+    
+period_loop.start()
+
+"""
+
 
 notify_loop.start()
-period_loop.start()
 bot.run(TOKEN)
 
 
