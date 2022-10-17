@@ -13,7 +13,7 @@ API_D2RWZ_TZ = os.environ.get("API_D2RWZ_DC_PROCESS", "https://d2runewizard.com/
 API_D2RWZ_WALK = os.environ.get("API_D2RWZ_WALK", "https://d2runewizard.com/api/diablo-clone-progress/planned-walks")
 
 DISCORD_CHANNEL_ID = int(os.environ.get("DISCORD_CHANNEL_ID", 0))
-# TOKEN_DC = os.environ.get("DISCORD_TOKEN")
+TOKEN_DC = os.environ.get("DISCORD_TOKEN")
 TOKEN_D2RWZ = os.environ.get("D2RWZ_TOKEN")
 FULL_DC_MSG_D2RIO = 1031507186179911691
 MINIMUM_TB_LEVEL = 0
@@ -90,7 +90,8 @@ def get_runewizzard_tracker():
     return response.json() if response.status_code == 200 else None
 
 print("starting test")
-print(TOKEN_D2RWZ)
+print("TOKEN_DC", TOKEN_DC)
+print("TOKEN_D2RWZ", TOKEN_D2RWZ)
 d2rwz_checler = get_runewizzard_tracker()
 print(d2rwz_checler)
 
