@@ -6,6 +6,7 @@ import requests
 import collections 
 from collections import OrderedDict
 from datetime import datetime
+import pytz
 
 load_dotenv()
 
@@ -281,10 +282,10 @@ async def notify_loop():
 
         text = "\n--- ***Terror progress (Diablo2.io)*** ---\n"
         # datetime object containing current date and time
-        now = datetime.now()
-        # dd/mm/YY H:M:S
-        dt_string = now.strftime("%H:%M:%S")
-        text += "> Last updated: " +  dt_string + "\n"
+        utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+        pst_now = utc_now.astimezone(pytz.timezone("CET"))
+        pst_str = pst_now.strftime("%H:%M:%S")
+        text += "> Last updated: " +  pst_str + " (CET)\n"
         
         for key in list_entry:
             progress = list_entry[key]
