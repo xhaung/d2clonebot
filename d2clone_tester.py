@@ -8,6 +8,7 @@ import pytz
 
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://diablo2.io/dclone_api.php")
 API_D2RWZ_DC_PROCESS = os.environ.get("API_D2RWZ_DC_PROCESS", "https://d2runewizard.com/api/diablo-clone-progress/all")
+API_D2RWZ_TZ = os.environ.get("API_D2RWZ_DC_PROCESS", "https://d2runewizard.com/api/terror-zone")
 DISCORD_CHANNEL_ID = int(os.environ.get("DISCORD_CHANNEL_ID", 0))
 # TOKEN_DC = os.environ.get("DISCORD_TOKEN")
 TOKEN_D2RWZ = os.environ.get("D2RWZ_TOKEN")
@@ -80,7 +81,7 @@ class CHANNEL_ID:
 def get_runewizzard_tracker():
 
     token_params = {"token": TOKEN_D2RWZ}
-    response = requests.get(API_D2RWZ_DC_PROCESS, params=token_params)
+    response = requests.get(API_D2RWZ_TZ, params=token_params)
     if response.status_code != 200:
         print("[Error] error getting D2RWZ DC progress", response.status_code)
     return response.json() if response.status_code == 200 else None
