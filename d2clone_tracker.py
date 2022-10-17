@@ -22,7 +22,7 @@ TOKEN_D2RWZ = os.environ.get("D2RWZ_TOKEN")
 MINIMUM_TB_LEVEL = 0
 
 MSG_ID_FULL_DC_D2RIO = 1031507186179911691
-MSG_ID_TZ_D2RWZD = 1028027236827287623
+MSG_ID_TZ_D2RWZD = 1031617016366366800
 
 
 class Regions:
@@ -409,14 +409,14 @@ async def tz_loop():
         #print(message)
         channel_id = CHANNEL_ID.TEST
         try:
-            print(channel_id, "last tz: " + text)
+            # print(channel_id, "last tz: " + text)
             channel = bot.get_channel(channel_id)
             message = await channel.fetch_message(MSG_ID_TZ_D2RWZD)
             await message.edit(content=text)
             
-            channel_id = CHANNEL_ID.PERIOD
-            channel = bot.get_channel(channel_id)
-            await channel.send(text)
+            # channel_id = CHANNEL_ID.PERIOD
+            # channel = bot.get_channel(channel_id)
+            # await channel.send(text)
         except Exception as e:
             print("[Error]:", e)
 
