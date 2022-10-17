@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import requests
 import collections 
 from collections import OrderedDict
+from datetime import datetime
 
 load_dotenv()
 
@@ -279,6 +280,13 @@ async def notify_loop():
         list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
 
         text = "--- ***Terror progress (Diablo2.io)*** ---\n"
+
+        # datetime object containing current date and time
+        now = datetime.now()
+        # dd/mm/YY H:M:S
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print("Last updated: ", dt_string, "\n")	
+        
         for key in list_entry:
             progress = list_entry[key]
             text += build_msg_str(key, progress, with_credict=False, full_text=True) + "\n"
