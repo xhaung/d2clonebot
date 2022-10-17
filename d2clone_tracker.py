@@ -279,8 +279,7 @@ async def notify_loop():
 
         list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
 
-        text = "--- ***Terror progress (Diablo2.io)*** ---\n"
-
+        text = "\n--- ***Terror progress (Diablo2.io)*** ---\n"
         # datetime object containing current date and time
         now = datetime.now()
         # dd/mm/YY H:M:S
