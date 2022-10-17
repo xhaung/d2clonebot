@@ -247,20 +247,21 @@ first_loop = False
 async def notify_loop():
     #print("testing 1")
     checker = get_diablo_tracker()
-    new_entry = check_new_entry(checker, [3, 4, 5, 6], record_list)
+    if checker iis not None:
+        new_entry = check_new_entry(checker, [3, 4, 5, 6], record_list)
 
-    for key in new_entry:
-        progress = new_entry[key]
-        message = build_msg_str(key, progress)
-        channel_id = CHANNEL_ID.SEL[key[1]][key[2]]
-        # channel_send_msg(channel_id, message)
-        
-        try:
-            print(channel_id, message)
-            channel = bot.get_channel(channel_id)
-            await channel.send(message)
-        except Exception as e:
-            print("[Error]:", e)
+        for key in new_entry:
+            progress = new_entry[key]
+            message = build_msg_str(key, progress)
+            channel_id = CHANNEL_ID.SEL[key[1]][key[2]]
+            # channel_send_msg(channel_id, message)
+
+            try:
+                print(channel_id, message)
+                channel = bot.get_channel(channel_id)
+                await channel.send(message)
+            except Exception as e:
+                print("[Error]:", e)
 
     
 
@@ -275,27 +276,28 @@ async def period_loop():
     global first_loop
     if not first_loop:
         checker = get_diablo_tracker()
-        list_entry = check_new_entry(checker, [3, 4, 5, 6])
+        if checker is not None:
+            list_entry = check_new_entry(checker, [3, 4, 5, 6])
 
-        message = "---- Current terror progress (> 2) ----\n"
-        for key in list_entry:
-            progress = list_entry[key]
-            message += build_msg_str(key, progress, with_credict=False) + "\n"
+            message = "---- Current terror progress (> 2) ----\n"
+            for key in list_entry:
+                progress = list_entry[key]
+                message += build_msg_str(key, progress, with_credict=False) + "\n"
 
-        if len(list_entry) == 0:
-            message += "No region's terror progresses beyond 3 at the moment"
-            
-        message += "\n> Data courtesy of diablo2.io"
-            
-        #print(message)
-        channel_id = CHANNEL_ID.PERIOD
-        #channel_send_msg(channel_id, message)
-        try:
-            print(channel_id, message)
-            channel = bot.get_channel(channel_id)
-            await channel.send(message)
-        except Exception as e:
-            print("[Error]:", e)
+            if len(list_entry) == 0:
+                message += "No region's terror progresses beyond 3 at the moment"
+
+            message += "\n> Data courtesy of diablo2.io"
+
+            #print(message)
+            channel_id = CHANNEL_ID.PERIOD
+            #channel_send_msg(channel_id, message)
+            try:
+                print(channel_id, message)
+                channel = bot.get_channel(channel_id)
+                await channel.send(message)
+            except Exception as e:
+                print("[Error]:", e)
     else:
         print("skipped the first hourly loop")
     
