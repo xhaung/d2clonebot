@@ -11,6 +11,8 @@ load_dotenv()
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://diablo2.io/dclone_api.php")
 DISCORD_CHANNEL_ID = int(os.environ.get("DISCORD_CHANNEL_ID", 0))
 TOKEN = os.environ.get("DISCORD_TOKEN")
+FULL_DC_MSG_D2RIO = 1031507186179911691
+MINIMUM_TB_LEVEL = 0
 
 
 class Regions:
@@ -277,17 +279,17 @@ async def period_loop():
     if not first_loop:
         checker = get_diablo_tracker()
         if checker is not None:
-            list_entry = check_new_entry(checker, [3, 4, 5, 6])
+            list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
 
-            message = "---- Current terror progress (> 2) ----\n"
+            text = "---- Current terror progress (> {MINIMUM_TB_LEVEL}) ----\n"
             for key in list_entry:
                 progress = list_entry[key]
-                message += build_msg_str(key, progress, with_credict=False) + "\n"
+                text += build_msg_str(key, progress, with_credict=False) + "\n"
 
             if len(list_entry) == 0:
-                message += "No region's terror progresses beyond 3 at the moment"
+                text += "No region's terror progresses beyond {MINIMUM_TB_LEVEL+1} at the moment"
 
-            message += "\n> Data courtesy of diablo2.io"
+            text += "\n> Data courtesy of diablo2.io"
 
             #print(message)
             channel_id = CHANNEL_ID.PERIOD
@@ -295,7 +297,9 @@ async def period_loop():
             try:
                 print(channel_id, message)
                 channel = bot.get_channel(channel_id)
-                await channel.send(message)
+                message = await channel.fetch_message(FULL_DC_MSG_D2RIO)
+                await message.edit(content=text)
+                # await channel.send(message)
             except Exception as e:
                 print("[Error]:", e)
     else:
