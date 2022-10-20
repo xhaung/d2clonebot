@@ -208,16 +208,16 @@ def create_planned_walk_msg(walk, provided = None):
     print(datetime.fromtimestamp(walk['timestamp']/1000), "\n")
 
     text = "--- ***Planned DC Walk*** ---\n"
-    text += f"***{Ladder.FULLTEXT[tx_l(walk['ladder'])]}, {Hardcore.FULLTEXT[tx_hc(walk['hardcore'])]}, {walk['region']}***\n\n"
-    text += f"Time: {get_time_from_seconds(walk['timestamp']/1000).strftime('%Y-%m-%d %H:%M:%S')} (CET)\n"
-    text += f"Confimred: {walk['confirmed']}\n"
-    text += f"By: {walk['displayName']}\n\n"
-    text += f"Source: <{walk['source']}>\n"
+    text += f"***Server***: {Ladder.FULLTEXT[tx_l(walk['ladder'])]}, {Hardcore.FULLTEXT[tx_hc(walk['hardcore'])]}, {'Region TBD' if walk['region']=='TBD' else walk['region']}{walk['region']}\n\n"
+    text += f"***Time***: {get_time_from_seconds(walk['timestamp']/1000).strftime('%Y-%m-%d %H:%M:%S')} (CET)\n"
+    text += f"***Confimred***: {walk['confirmed']}\n"
+    text += f"***By***: {walk['displayName']}\n\n"
+    text += f"***Source***: <{walk['source']}>\n"
 
     if provided != None:
         text += "> Provided by <" + provided + ">\n"
 
-    text += "\n"
+    text += ".\n.\n"
         
     return text
 
