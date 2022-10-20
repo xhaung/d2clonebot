@@ -3,5 +3,10 @@
 This is a forked project from @fredericojordan's https://github.com/fredericojordan/d2clonebot. 
 With extended feature to include checking with D2RuneWizzard 
 
-[![powered-by-diablo2.io](https://img.shields.io/badge/powered%20by-diablo2.io-green)](https://diablo2.io/)
+Source of information:
+https://diablo2.io/
+https://d2runewizard.com/
+
 [![powered-by-d2runewizard.com](https://d2runewizard.com/terror-zone-tracker)](https://d2runewizard.com/)
+[![powered-by-diablo2.io](https://img.shields.io/badge/powered%20by-diablo2.io-green)](https://diablo2.io/)
+
