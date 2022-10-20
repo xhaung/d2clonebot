@@ -569,7 +569,7 @@ else:
     channel = bot.get_channel(channel_id)
     skip_initial_walks = False
 
-    global skip_initial_walks
+    skip_initial_walks
     for walk in checker['walks']:
         text = create_planned_walk_msg(walk, checker['providedBy'])
 
