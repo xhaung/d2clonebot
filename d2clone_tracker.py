@@ -527,7 +527,7 @@ if IS_WEB_WORKER:
 
                     if not skip_initial_walks:
                         try:
-                            await message = channel.send(text)
+                            message = await channel.send(text)
                             planned_walk_history[walk['id']] = message.id
                         except Exception as e:
                             print("[Error]:", e)
@@ -578,7 +578,7 @@ else:
             print("walk", walk['id'], "\n", text)
 
             if not skip_initial_walks:
-                message = channel.send(text)
+                message = await channel.send(text)
                 planned_walk_history[walk['id']] = message.id
         else:
             
