@@ -557,6 +557,8 @@ if IS_WEB_WORKER:
 
 else:
     print("this is the testing flow\n")
+    
+    """
 
     #checker = get_runewizzard_tracker(API_D2RWZ_WALK)
     planned_walk_history = OrderedDict()
@@ -590,3 +592,5 @@ else:
             print("deleting item:", next(iter(planned_walk_history.items())))
             planned_walk_history.popitem()
             print(len(planned_walk_history))
+
+    """
