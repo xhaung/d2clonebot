@@ -1,4 +1,5 @@
 import os
+import discord
 from discord.ext import commands
 from discord.ext import tasks
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ API_BASE_URL = os.environ.get("API_BASE_URL", "https://diablo2.io/dclone_api.php
 API_D2RWZ_DC_PROCESS = os.environ.get("API_D2RWZ_DC_PROCESS", "https://d2runewizard.com/api/diablo-clone-progress/all")
 API_D2RWZ_TZ = os.environ.get("API_D2RWZ_DC_PROCESS", "https://d2runewizard.com/api/terror-zone")
 API_D2RWZ_WALK = os.environ.get("API_D2RWZ_WALK", "https://d2runewizard.com/api/diablo-clone-progress/planned-walks")
-API_D2RWZ_WALK = os.environ.get("IS_WEB_WORKER", False)
+IS_WEB_WORKER = int(os.environ.get("IS_WEB_WORKER", 0))
 
 TOKEN_DC = os.environ.get("DISCORD_TOKEN")
 TOKEN_D2RWZ = os.environ.get("D2RWZ_TOKEN")
@@ -24,6 +25,9 @@ MINIMUM_TB_LEVEL = 0
 
 MSG_ID_FULL_DC_D2RIO = 1031507186179911691
 MSG_ID_TZ_D2RWZD = 1031617016366366800
+
+
+LOOP_INTV_WALK = 60
 
 
 class Regions:
@@ -102,8 +106,13 @@ class CHANNEL_ID:
     TEST = 894561623816155178
     TZ_NOTIFY = 1031688784565248051
 
+def tx_hc(hc):
+    return 1 if hc else 2
 
-bot = commands.Bot(command_prefix="!")
+def tx_l(l):
+    return 1 if l else 2
+
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.default())
 
 
 def get_diablo_tracker(
@@ -163,6 +172,13 @@ def check_new_entry(tracker, levels, record_list=None):
 
 ## Message handling ###
 
+def get_time_from_seconds(seconds):
+    utc_now = pytz.utc.localize(datetime(1970,1,1) + timedelta(seconds=seconds))
+    pst_now = utc_now.astimezone(pytz.timezone("CET"))
+
+    return pst_now
+
+
 def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True, full_text=False):
     prefix = msg_prefix.TEXT[progress] if with_msg_prefix else ''
     if full_text:
@@ -176,8 +192,7 @@ def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True, f
 def create_tz_msg(tz_info):
     z = tz_info['terrorZone']
     
-    utc_now = pytz.utc.localize(datetime(1970,1,1) + timedelta(seconds=z['lastUpdate']['seconds']))
-    pst_now = utc_now.astimezone(pytz.timezone("CET"))
+    pst_now = get_time_from_seconds(z['lastUpdate']['seconds'])
     
     string = f"--- ***Terror Zone (D2RuneWizzard)*** ---\n\n"
     string += f"Act: ***{z['act']}***\n"
@@ -188,6 +203,23 @@ def create_tz_msg(tz_info):
     print(f"Time {pst_now.time()}, Act {z['act']}, Zone {z['zone']}")
 
     return string
+
+def create_planned_walk_msg(walk, provided = None):
+    print(datetime.fromtimestamp(walk['timestamp']/1000), "\n")
+
+    text = "--- ***Planned DC Walk*** ---\n"
+    text += f"***{Ladder.FULLTEXT[tx_l(walk['ladder'])]}, {Hardcore.FULLTEXT[tx_hc(walk['hardcore'])]}, {walk['region']}***\n"
+    text += f"Time: {get_time_from_seconds(walk['timestamp']/1000).strftime('%Y-%m-%d %H:%M:%S')}\n"
+    text += f"Confimred: {walk['confirmed']}\n"
+    text += f"By: {walk['displayName']}\n"
+    text += f"Source: <{walk['source']}>\n"
+
+    if provided != None:
+        text += "> Provided by <" + provided + ">\n"
+
+    return text
+
+
 
 def status_text(list, region=None, ladder=None, hardcore=None, fulltext=False):
     text = ""
@@ -239,140 +271,106 @@ def parse_args(args):
 
 
 
-"""
-def channel_send_msg(channel_id, msg):
-    try:
-        print(channel_id, msg)
-        channel = bot.get_channel(channel_id)
-        await channel.send(msg)
-    except Exception as e:
-        print("[Error]:", e)
-"""
+print(type(IS_WEB_WORKER), IS_WEB_WORKER, "\n")
 
-@bot.event
-async def on_ready():
-    print(f'{bot.user} succesfully logged in!')
+if IS_WEB_WORKER:
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    
-    if message.content == 'hello':
-        await message.channel.send(f'Hi {message.author}')
-    if message.content == 'bye':
-        await message.channel.send(f'Goodbye {message.author}')
-        
-    if message.content.startswith("!uberdiablo") and "help" in message.content:
-        await message.channel.send("Usage: !uberdiablo [eu|am|asi] [non|ladder] [soft|hard]")
-    elif message.content.startswith("!uberdiablo"):
-        current_list = init_record_list(True, True)
-
-        args = message.content.split(" ")[1:]
-        region, ladder, hardcore = parse_args(args)
-        text_message = status_text(
-            list = current_list, 
-            region=region, ladder=ladder, hardcore=hardcore
-        )
-        await message.channel.send(text_message)
-
-    await bot.process_commands(message)
-
-"""
-# Start each command with the @bot.command decorater
-@bot.command()
-async def square(ctx, arg): # The name of the function is the name of the command
-    print(arg) # this is the text that follows the command
-    await ctx.send(int(arg) ** 2) # ctx.send sends text in chat
-
-@bot.command()
-async def scrabblepoints(ctx, arg):
-    # Key for point values of each letter
-    score = {"a": 1, "c": 3, "b": 3, "e": 1, "d": 2, "g": 2,
-         "f": 4, "i": 1, "h": 4, "k": 5, "j": 8, "m": 3,
-         "l": 1, "o": 1, "n": 1, "q": 10, "p": 3, "s": 1,
-         "r": 1, "u": 1, "t": 1, "w": 4, "v": 4, "y": 4,
-         "x": 8, "z": 10}
-    points = 0
-    # Sum the points for each letter
-    for c in arg:
-        points += score[c]
-    await ctx.send(points)
-"""
-    
-record_list = init_record_list(True)
-first_loop = False
-        
-@tasks.loop(seconds=62.0)
-async def notify_loop():
-    #print("testing 1")
-    checker = get_diablo_tracker()
-    if checker is not None:
-        ## Print per channel update
-        new_entry = check_new_entry(checker, [3, 4, 5, 6], record_list)
-
-        for key in new_entry:
-            progress = new_entry[key]
-            message = build_msg_str(key, progress)
-            channel_id = CHANNEL_ID.SEL[key[1]][key[2]]
-            # channel_send_msg(channel_id, message)
-
-            try:
-                print(channel_id, message)
-                channel = bot.get_channel(channel_id)
-                await channel.send(message)
-            except Exception as e:
-                print("[Error]:", e)
-         
-        ## Print full table update
-
-        list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
-
-        text = "\n--- ***Terror progress (Diablo2.io)*** ---\n"
-        # datetime object containing current date and time
-        utc_now = pytz.utc.localize(datetime.utcnow())
-        pst_now = utc_now.astimezone(pytz.timezone("CET"))
-        pst_str = pst_now.strftime("%H:%M:%S")
-        text += "| Last updated: " +  pst_str + " (CET)\n\n"
-        
-        for key in list_entry:
-            progress = list_entry[key]
-            text += build_msg_str(key, progress, with_credict=False, full_text=True) + "\n"
-
-        if len(list_entry) == 0:
-            text += "No region's terror progresses beyond {MINIMUM_TB_LEVEL+1} at the moment\n"
-
-        text += "> Data courtesy of diablo2.io"
-
-        #print(message)
-        channel_id = CHANNEL_ID.PERIOD
-        #channel_send_msg(channel_id, message)
+    """
+    def channel_send_msg(channel_id, msg):
         try:
-            print(channel_id, "last full update: " + pst_str)
+            print(channel_id, msg)
             channel = bot.get_channel(channel_id)
-            message = await channel.fetch_message(MSG_ID_FULL_DC_D2RIO)
-            await message.edit(content=text)
-            # await channel.send(message)
+            await channel.send(msg)
         except Exception as e:
             print("[Error]:", e)
+    """
 
-    
+    @bot.event
+    async def on_ready():
+        print(f'{bot.user} succesfully logged in!')
 
-@notify_loop.before_loop
-async def before_notify_loop():
-    print('waiting...')
-    await bot.wait_until_ready()
+    @bot.event
+    async def on_message(message):
+        if message.author == bot.user:
+            return
+        
+        if message.content == 'hello':
+            await message.channel.send(f'Hi {message.author}')
+        if message.content == 'bye':
+            await message.channel.send(f'Goodbye {message.author}')
+            
+        if message.content.startswith("!uberdiablo") and "help" in message.content:
+            await message.channel.send("Usage: !uberdiablo [eu|am|asi] [non|ladder] [soft|hard]")
+        elif message.content.startswith("!uberdiablo"):
+            current_list = init_record_list(True, True)
 
-"""
-@tasks.loop(hours=6.0)
-async def period_loop():
-    global first_loop
-    if not first_loop:
+            args = message.content.split(" ")[1:]
+            region, ladder, hardcore = parse_args(args)
+            text_message = status_text(
+                list = current_list, 
+                region=region, ladder=ladder, hardcore=hardcore
+            )
+            await message.channel.send(text_message)
+
+        await bot.process_commands(message)
+
+    """
+    # Start each command with the @bot.command decorater
+    @bot.command()
+    async def square(ctx, arg): # The name of the function is the name of the command
+        print(arg) # this is the text that follows the command
+        await ctx.send(int(arg) ** 2) # ctx.send sends text in chat
+
+    @bot.command()
+    async def scrabblepoints(ctx, arg):
+        # Key for point values of each letter
+        score = {"a": 1, "c": 3, "b": 3, "e": 1, "d": 2, "g": 2,
+            "f": 4, "i": 1, "h": 4, "k": 5, "j": 8, "m": 3,
+            "l": 1, "o": 1, "n": 1, "q": 10, "p": 3, "s": 1,
+            "r": 1, "u": 1, "t": 1, "w": 4, "v": 4, "y": 4,
+            "x": 8, "z": 10}
+        points = 0
+        # Sum the points for each letter
+        for c in arg:
+            points += score[c]
+        await ctx.send(points)
+    """
+
+    record_list = init_record_list(True)
+    first_loop = False
+            
+    @tasks.loop(seconds=62.0)
+    async def notify_loop():
+        #print("testing 1")
         checker = get_diablo_tracker()
         if checker is not None:
+            ## Print per channel update
+            new_entry = check_new_entry(checker, [3, 4, 5, 6], record_list)
+
+            for key in new_entry:
+                progress = new_entry[key]
+                message = build_msg_str(key, progress)
+                channel_id = CHANNEL_ID.SEL[key[1]][key[2]]
+                # channel_send_msg(channel_id, message)
+
+                try:
+                    print(channel_id, message)
+                    channel = bot.get_channel(channel_id)
+                    await channel.send(message)
+                except Exception as e:
+                    print("[Error]:", e)
+            
+            ## Print full table update
+
             list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
 
-            text = "--- ***Terror progress (Diablo2.io)*** ---\n"
+            text = "\n--- ***Terror progress (Diablo2.io)*** ---\n"
+            # datetime object containing current date and time
+            utc_now = pytz.utc.localize(datetime.utcnow())
+            pst_now = utc_now.astimezone(pytz.timezone("CET"))
+            pst_str = pst_now.strftime("%H:%M:%S")
+            text += "| Last updated: " +  pst_str + " (CET)\n\n"
+            
             for key in list_entry:
                 progress = list_entry[key]
                 text += build_msg_str(key, progress, with_credict=False, full_text=True) + "\n"
@@ -386,89 +384,209 @@ async def period_loop():
             channel_id = CHANNEL_ID.PERIOD
             #channel_send_msg(channel_id, message)
             try:
-                print(channel_id, text)
+                print(channel_id, "last full update: " + pst_str)
                 channel = bot.get_channel(channel_id)
-                message = await channel.fetch_message(FULL_DC_MSG_D2RIO)
+                message = await channel.fetch_message(MSG_ID_FULL_DC_D2RIO)
                 await message.edit(content=text)
                 # await channel.send(message)
             except Exception as e:
                 print("[Error]:", e)
-    else:
-        print("skipped the first hourly loop")
-    
-    first_loop = False
-    
 
-@period_loop.before_loop
-async def before_period_loop():
-    print('waiting...')
-    await bot.wait_until_ready()
-    
-    
-period_loop.start()
-
-"""
-
-TZ_TIME = 180
-previous_zone = ""
-skip_first_notify = True
-
-@tasks.loop(seconds=TZ_TIME)
-async def tz_loop():
-    global TZ_TIME
-    global previous_zone
-    global skip_first_notify
-    checker = get_runewizzard_tracker(API_D2RWZ_TZ)
-    if checker is not None:
-        ## Update waiting time
-        current_minutes = datetime.utcnow().strftime("%M")
-        TZ_TIME = max(30, min((60 - int(current_minutes)), checker['terrorZone']['highestProbabilityZone']['amount'])*60)
-        print(f"Time:{current_minutes}, Amount:{checker['terrorZone']['highestProbabilityZone']['amount']} ,TZ_TIME:{TZ_TIME}\n")
-        tz_loop.change_interval(seconds=TZ_TIME)
         
-        text = create_tz_msg(checker)
+
+    @notify_loop.before_loop
+    async def before_notify_loop():
+        print('waiting...')
+        await bot.wait_until_ready()
+
+    """
+    @tasks.loop(hours=6.0)
+    async def period_loop():
+        global first_loop
+        if not first_loop:
+            checker = get_diablo_tracker()
+            if checker is not None:
+                list_entry = check_new_entry(checker, range(MINIMUM_TB_LEVEL, 6, 1))
+
+                text = "--- ***Terror progress (Diablo2.io)*** ---\n"
+                for key in list_entry:
+                    progress = list_entry[key]
+                    text += build_msg_str(key, progress, with_credict=False, full_text=True) + "\n"
+
+                if len(list_entry) == 0:
+                    text += "No region's terror progresses beyond {MINIMUM_TB_LEVEL+1} at the moment\n"
+
+                text += "> Data courtesy of diablo2.io"
+
+                #print(message)
+                channel_id = CHANNEL_ID.PERIOD
+                #channel_send_msg(channel_id, message)
+                try:
+                    print(channel_id, text)
+                    channel = bot.get_channel(channel_id)
+                    message = await channel.fetch_message(FULL_DC_MSG_D2RIO)
+                    await message.edit(content=text)
+                    # await channel.send(message)
+                except Exception as e:
+                    print("[Error]:", e)
+        else:
+            print("skipped the first hourly loop")
         
-        #print(message)
-        channel_id = CHANNEL_ID.PERIOD
-        try:
-            # print(channel_id, "last tz: " + text)
-            channel = bot.get_channel(channel_id)
-            message = await channel.fetch_message(MSG_ID_TZ_D2RWZD)
-            await message.edit(content=text)
+        first_loop = False
+        
+
+    @period_loop.before_loop
+    async def before_period_loop():
+        print('waiting...')
+        await bot.wait_until_ready()
+        
+        
+    period_loop.start()
+
+    """
+
+    TZ_TIME = 180
+    previous_zone = ""
+    skip_first_notify = True
+
+    @tasks.loop(seconds=TZ_TIME)
+    async def tz_loop():
+        global TZ_TIME
+        global previous_zone
+        global skip_first_notify
+        checker = get_runewizzard_tracker(API_D2RWZ_TZ)
+        if checker is not None:
+            ## Update waiting time
+            current_minutes = datetime.utcnow().strftime("%M")
+            TZ_TIME = max(30, min((60 - int(current_minutes)), checker['terrorZone']['highestProbabilityZone']['amount'])*60)
+            print(f"Time:{current_minutes}, Amount:{checker['terrorZone']['highestProbabilityZone']['amount']} ,TZ_TIME:{TZ_TIME}\n")
+            tz_loop.change_interval(seconds=TZ_TIME)
             
-            # channel_id = CHANNEL_ID.PERIOD
-            # channel = bot.get_channel(channel_id)
-            # await channel.send(text)
-        except Exception as e:
-            print("[Error]:", e)
+            text = create_tz_msg(checker)
             
-        ## notification
-        try:
-            current_zone = checker['terrorZone']['zone']
-            if current_zone in top_terror_zone.LIST and current_zone != previous_zone and not skip_first_notify:
-                notify_text = f"***TOP {top_terror_zone.LIST.index(current_zone) + 1}*** out of {len(top_terror_zone.LIST)} most popular terror zones\n"
-                notify_text += text
-                channel_id = CHANNEL_ID.TZ_NOTIFY
+            #print(message)
+            channel_id = CHANNEL_ID.PERIOD
+            try:
+                # print(channel_id, "last tz: " + text)
                 channel = bot.get_channel(channel_id)
-                await channel.send(notify_text)
-            previous_zone = current_zone
-            skip_first_notify = False
-        except Exception as e:
-            print("[Error]:", e)
-    
+                message = await channel.fetch_message(MSG_ID_TZ_D2RWZD)
+                await message.edit(content=text)
+                
+                # channel_id = CHANNEL_ID.PERIOD
+                # channel = bot.get_channel(channel_id)
+                # await channel.send(text)
+            except Exception as e:
+                print("[Error]:", e)
+                
+            ## notification
+            try:
+                current_zone = checker['terrorZone']['zone']
+                if current_zone in top_terror_zone.LIST and current_zone != previous_zone and not skip_first_notify:
+                    notify_text = f"***TOP {top_terror_zone.LIST.index(current_zone) + 1}*** out of {len(top_terror_zone.LIST)} most popular terror zones\n"
+                    notify_text += text
+                    channel_id = CHANNEL_ID.TZ_NOTIFY
+                    channel = bot.get_channel(channel_id)
+                    await channel.send(notify_text)
+                previous_zone = current_zone
+                skip_first_notify = False
+            except Exception as e:
+                print("[Error]:", e)
+        
 
-@tz_loop.before_loop
-async def before_tz_loop():
-    print('tz loop waiting...')
-    await bot.wait_until_ready()
-"""
-@tz_loop.after_loop
-async def after_tz_loop():
-    print("TZ loop time changed to ", TZ_TIME)
-    tz_loop.change_interval(TZ_TIME)
-"""
+    @tz_loop.before_loop
+    async def before_tz_loop():
+        print('tz loop waiting...')
+        await bot.wait_until_ready()
+    """
+    @tz_loop.after_loop
+    async def after_tz_loop():
+        print("TZ loop time changed to ", TZ_TIME)
+        tz_loop.change_interval(TZ_TIME)
+    """
 
-notify_loop.start()
-tz_loop.start()
-bot.run(TOKEN_DC)
+    planned_walk_history = OrderedDict()
+    skip_initial_walks = False
 
+    @tasks.loop(seconds=LOOP_INTV_WALK)
+    async def walk_loop():
+        global skip_initial_walks
+        global planned_walk_history
+        checker = get_runewizzard_tracker(API_D2RWZ_WALK)
+
+        if checker is not None:
+            
+            channel_id = CHANNEL_ID.TEST
+            channel = bot.get_channel(channel_id)
+            
+            for walk in checker['walks']:
+                text = create_planned_walk_msg(walk, checker['providedBy'])
+
+                if walk['id'] not in planned_walk_history:
+                    planned_walk_history['id'] = walk['displayName']
+                    print("walk", walk['id'], "\n", text)
+
+                    if not skip_initial_walks:
+                        try:
+                            await message = channel.send(text)
+                            planned_walk_history[walk['id']] = message.id
+                        except Exception as e:
+                            print("[Error]:", e)
+                else:
+                    try:
+                        message = await channel.fetch_message(planned_walk_history[walk['id']])
+                        await message.edit(content=text)
+                    except Exception as e:
+                        print("[Error]:", e)
+            
+        if len(planned_walk_history) > 128:
+            for i in range(0, len(planned_walk_history) - 129):
+                print("deleting item (->:", len(planned_walk_history), "), ", next(iter(planned_walk_history.items())), "\n")
+                planned_walk_history.popitem()
+
+
+    @walk_loop.before_loop
+    async def before_walk_loop():
+        print('walk loop waiting...')
+        await bot.wait_until_ready()
+
+
+    notify_loop.start()
+    tz_loop.start()
+    walk_loop.start()
+    bot.run(TOKEN_DC)
+
+else:
+    print("this is the testing flow\n")
+
+    #checker = get_runewizzard_tracker(API_D2RWZ_WALK)
+    planned_walk_history = OrderedDict()
+    planned_walk_history['BsFOBOodpvTkncc3LRb8'] = 23131241545346234
+
+    checker = {'walks': [{'id': 'aMZcS4bSZD2BgDe6mlY6', 'displayName': 'Przemysław “Sky” Zawada', 'ladder': False, 'region': 'TBD', 'hardcore': False, 'uid': 'hX1xfQ3AtzgtiQaprJIryDaozAm2', 'confirmed': False, 'timestamp': 1666353600000, 'source': 'https://discord.com/channels/892856193536622602/895727392092459049/1032670723031969813'}, {'id': 'BsFOBOodpvTkncc3LRb8', 'timestamp': 1666357200000, 'confirmed': False, 'hardcore': False, 'uid': '2SQSuQFxokPMduAMx4o4cF11yrE3', 'displayName': 'synse', 'source': 'https://discord.com/channels/892856193536622602/1020301862886449174/1032290349009350687', 'region': 'TBD', 'ladder': True}, {'id': 'FbiweNhh2B0bgivQiWiC', 'hardcore': False, 'confirmed': True, 'source': 'https://www.youtube.com/c/FBI%EB%A9%80%EB%8D%942', 'timestamp': 1666429200000, 'displayName': 'spyder', 'ladder': True, 'uid': '0BInXYohKweLOBBjWWSzm40N3zu2', 'region': 'Asia'}], 'providedBy': 'https://d2runewizard.com/diablo-clone-tracker'}
+    # print(checker)
+
+    channel_id = CHANNEL_ID.TEST
+    channel = bot.get_channel(channel_id)
+    skip_initial_walks = False
+
+    global skip_initial_walks
+    for walk in checker['walks']:
+        text = create_planned_walk_msg(walk, checker['providedBy'])
+
+        if walk['id'] not in planned_walk_history:
+            planned_walk_history['id'] = walk['displayName']
+            print("walk", walk['id'], "\n", text)
+
+            if not skip_initial_walks:
+                message = channel.send(text)
+                planned_walk_history[walk['id']] = message.id
+        else:
+            
+            message = await channel.fetch_message(planned_walk_history[walk['id']])
+            await message.edit(content=text)
+
+    if len(planned_walk_history) > 0:
+        for i in range(0, len(planned_walk_history) - 1):
+            print("deleting item:", next(iter(planned_walk_history.items())))
+            planned_walk_history.popitem()
+            print(len(planned_walk_history))
