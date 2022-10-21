@@ -1,0 +1,10 @@
+Dev Note:
+
+Planned walk: 
+* a skipped notificaiton should have None type
+* check against None before editing message
+** update table to file
+
+Role Base system:
+* Use Carl bot to update
+* SC_L, SC_NL, HC_L, HC_NL, NTF_TZ, NTF_WALKS
