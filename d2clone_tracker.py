@@ -81,14 +81,14 @@ class top_terror_zone:
         "Moo Moo Farm",
         "Chaos Sanctuary",
         "Worldstone Keep, Throne of Destruction, and Worldstone Chamber",
-        "Tal Rasha's Tombs and Tal Rasha's Chamber",
-        "Travincal",
-        "The Pit",
-        "Arcane Sanctuary",
-        "The Forgotten Tower",
-        "Nihlathak's Temple, Halls of Anguish, Halls of Pain, and Halls of Vaught",
-        "Tristram",
-        "Cathedral and Catacombs"
+        # "Tal Rasha's Tombs and Tal Rasha's Chamber",
+        # "Travincal",
+        # "The Pit",
+        # "Arcane Sanctuary",
+        # "The Forgotten Tower",
+        # "Nihlathak's Temple, Halls of Anguish, Halls of Pain, and Halls of Vaught",
+        # "Tristram",
+        # "Cathedral and Catacombs"
     ]
     
 class CHANNEL_ID:
