@@ -135,7 +135,12 @@ def get_diablo_tracker(
 
 def get_runewizzard_tracker(api_addr):
     token_params = {"token": TOKEN_D2RWZ}
-    response = requests.get(api_addr, params=token_params)
+    headers = {
+        "D2R-Contact": "xrh107@gmail.com", 
+        "D2R-Platform": "Discord",
+        "D2R-Repo": "https://discord.gg/D7Rah5x4Sz"
+    }
+    response = requests.get(api_addr, params=token_params, headers=headers)
     if response.status_code != 200:
         print("[Error] error getting D2RWZ DC progress", response.status_code)
     return response.json() if response.status_code == 200 else None
