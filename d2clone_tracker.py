@@ -191,7 +191,8 @@ def build_msg_str(key, progress, with_msg_prefix = False, with_credict = True, f
     return text
 
 def create_tz_msg(tz_info):
-    z = tz_info['terrorZone']
+    tz = tz_info['terrorZone']
+    z = tz['highestProbabilityZone']
     
     pst_now = get_time_from_seconds(z['lastUpdate']['seconds'])
     
@@ -199,8 +200,8 @@ def create_tz_msg(tz_info):
     string += f"Act: ***{z['act']}***\n"
     string += f"Zone: ***{z['zone']}***\n"
     string += f"Last Updated: {pst_now.time()} (CET)\n"
-    string += f"Reports (Probability): {z['highestProbabilityZone']['amount']}" + f" ({z['highestProbabilityZone']['probability']*100}%)\n"
-    string += f"> Provided by: <{tz_info['providedBy']}>\n"
+    string += f"Reports (Probability): {z['amount']}" + f" ({z['probability']*100}%)\n"
+    string += f"> Provided by: <{tz['providedBy']}>\n"
     print(f"Time {pst_now.time()}, Act {z['act']}, Zone {z['zone']}")
 
     return string
@@ -483,7 +484,7 @@ if IS_WEB_WORKER:
                 
             ## notification
             try:
-                current_zone = checker['terrorZone']['zone']
+                current_zone = checker['terrorZone']['highestProbabilityZone']['zone']
                 if current_zone in top_terror_zone.LIST and current_zone != previous_zone and not skip_first_notify:
                     notify_text = f"***TOP {top_terror_zone.LIST.index(current_zone) + 1}*** out of {len(top_terror_zone.LIST)} most popular terror zones\n"
                     notify_text += text
